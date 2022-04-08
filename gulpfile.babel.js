@@ -61,24 +61,20 @@ function loadConfig() {
  * @param dir
  */
 function ensureFolder(dir) {
+    let bSuccess = false;
     if (!typechecks.isEmpty(dir)) {
         if ( !dir.startsWith( __dirname ) ) {
             dir = path.join(__dirname, dir);
         }
 
-        if (!fs.existsSync(dir) ) {
-            (async () => {
-                try {
-                    const path = await mkdirp( dir );
-                    resolve(true);
-                }
-                catch ( err ) {
-                    reject(err);
-                }
-            })();
+        if ( !(bSuccess = fs.existsSync(dir)) ) {
+            const path = mkdirp.sync( dir );
+            if ( typechecks.isNotEmpty(path) ) {
+                bSuccess = true;
+            }
         }
     }
-    return false;
+    return bSuccess;
 }
 
 // /**
@@ -175,10 +171,18 @@ function copyAssets() {
     ));
 }
 
+/**
+ * TODO
+ * @returns {*}
+ */
 function copyInitJs() {
     return gulp.src("src/assets/vendors/gsb/js/init.js").pipe(gulp.dest(config.paths.dist.path + '/' + config.paths.dist.assets + '/js'));
 }
 
+/**
+ * TODO
+ * @returns {*}
+ */
 function copyGsbModules() {
     return gulp.src("src/assets/vendors/gsb/js/gsb/**/*.js").pipe(gulp.dest(config.paths.dist.path + '/' + config.paths.dist.assets + '/js/gsb'));
 
