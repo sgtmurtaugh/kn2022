@@ -18,6 +18,7 @@ import sherpa   from 'style-sherpa';
 import typechecks from '@sgtmurtaugh/typechecks';
 import glob     from 'glob';
 //import svgSpritesheet from '@mariusgundersen/gulp-svg-spritesheet';
+import log from 'fancy-log';
 
 const resizeImage   = require('resize-img');
 
@@ -55,6 +56,31 @@ function loadConfig() {
     return JSON.parse(configFile);
 }
 
+/**
+ * Creates the given directy if it not exists.
+ * @param dir
+ */
+function ensureFolder(dir) {
+    if (!typechecks.isEmpty(dir)) {
+        if ( !dir.startsWith( __dirname ) ) {
+            dir = path.join(__dirname, dir);
+        }
+
+        if (!fs.existsSync(dir) ) {
+            (async () => {
+                try {
+                    const path = await mkdirp( dir );
+                    resolve(true);
+                }
+                catch ( err ) {
+                    reject(err);
+                }
+            })();
+        }
+    }
+    return false;
+}
+
 // /**
 //  * Determines all files of a given directory
 //  */
@@ -80,45 +106,45 @@ function getFolders(dir) {
  *  ## Browser Functions
  * ------------------------------ */
 
-// /**
-//  * Start a server with BrowserSync to preview the site in
-//  * @param done
-//  */
-// function startServer(done) {
-//     browser.init({
-//         server: config.paths.dist.path,
-//         port: config.development.server.port
-//     });
-//     done();
-// }
-//
-// /**
-//  * Reload the browser with BrowserSync
-//  */
-// function reloadServer(done) {
-//     browser.reload();
-//     done();
-// }
-//
-// /**
-//  * Watch for changes to static assets, pages, Sass, and JavaScript
-//  * @param done
-//  */
-// function watch(done) {
-//     gulp.watch(config.paths.src.assets, copyAssets);
-//     gulp.watch('src/pages/**/*.html').on('change', gulp.series(generatePages, browser.reload));
-//     gulp.watch('src/{layouts,partials}/**/{*.html,*.hbs}').on('change', gulp.series(resetPages, generatePages, browser.reload));
-//     gulp.watch('src/assets/scss/**/*.scss', generateSASS);
-//     gulp.watch('src/assets/js/**/*.js').on('change', gulp.series(generateJS, copyInitJs, browser.reload));
-//     gulp.watch('src/assets/img/**/*').on('change', gulp.series(copyImages, browser.reload));
-//     gulp.watch('src/styleguide/**').on('change', gulp.series(generateStyleGuide, browser.reload));
-//     done();
-// }
-//
-//
-// /* ------------------------------
-//  *  ## Build Functions
-//  * ------------------------------ */
+/**
+ * Start a server with BrowserSync to preview the site in
+ * @param done
+ */
+function startServer(done) {
+    browser.init({
+        server: config.paths.dist.path,
+        port: config.development.server.port
+    });
+    done();
+}
+
+/**
+ * Reload the browser with BrowserSync
+ */
+function reloadServer(done) {
+    browser.reload();
+    done();
+}
+
+/**
+ * Watch for changes to static assets, pages, Sass, and JavaScript
+ * @param done
+ */
+function watch(done) {
+    gulp.watch(config.paths.src.assets, copyAssets);
+    gulp.watch('src/pages/**/*.html').on('change', gulp.series(generatePages, browser.reload));
+    gulp.watch('src/{layouts,partials}/**/{*.html,*.hbs}').on('change', gulp.series(resetPages, generatePages, browser.reload));
+    gulp.watch('src/assets/scss/**/*.scss', generateSASS);
+    gulp.watch('src/assets/js/**/*.js').on('change', gulp.series(generateJS, copyInitJs, browser.reload));
+    gulp.watch('src/assets/img/**/*').on('change', gulp.series(copyImages, browser.reload));
+    gulp.watch('src/styleguide/**').on('change', gulp.series(generateStyleGuide, browser.reload));
+    done();
+}
+
+
+/* ------------------------------
+ *  ## Build Functions
+ * ------------------------------ */
 
 /**
  * clean
@@ -149,15 +175,15 @@ function copyAssets() {
     ));
 }
 
-// function copyInitJs() {
-//     return gulp.src("src/assets/js/init.js").pipe(gulp.dest(config.paths.dist.path + '/' + config.paths.dist.assets + '/js'));
-// }
-//
-// function copyGsbModules() {
-//     return gulp.src("src/assets/js/gsb/*").pipe(gulp.dest(config.paths.dist.path + '/' + config.paths.dist.assets + '/js/gsb'));
-//
-// }
-//
+function copyInitJs() {
+    return gulp.src("src/assets/vendors/gsb/js/init.js").pipe(gulp.dest(config.paths.dist.path + '/' + config.paths.dist.assets + '/js'));
+}
+
+function copyGsbModules() {
+    return gulp.src("src/assets/vendors/gsb/js/gsb/**/*.js").pipe(gulp.dest(config.paths.dist.path + '/' + config.paths.dist.assets + '/js/gsb'));
+
+}
+
 /**
  * Copy images to the "dist" folder.
  * In production, the images are compressed
@@ -247,7 +273,6 @@ function generateScaledImages(done) {
                                     }
 
                                     // Zielpfad, Filename und Subfolder ermitteln
-                                    let target;
                                     let targetPath = absolutPathPrefix + '/' + config.resizer.target;
                                     let subFolder = "";
                                     let targetFilename = "";
@@ -284,23 +309,11 @@ function generateScaledImages(done) {
 
                                     targetPath += '/' + subFolder;
 
-                                    if (!fs.existsSync(targetPath) ) {
-                                        // fs.mkdirp(targetPath);
-                                        (async () => {
-                                            const path = await mkdirp(targetPath);
-                                        })();
-                                    }
+                                    ensureFolder(targetPath);
 
-                                    if (fs.existsSync(targetPath) ) {
-                                        target = targetPath + '/' + targetFilename;
-
-                                        resizeImage(fs.readFileSync(file), resizerOptions).then(buf => {
-                                            fs.writeFileSync(target, buf);
-                                        });
-                                    }
-                                    else {
-                                        console.log(`Verzeichnis '${targetPath}' konnte nicht erstellt werden!`)
-                                    }
+                                    resizeImage(fs.readFileSync(file), resizerOptions).then(buf => {
+                                        fs.writeFileSync(targetPath + '/' + targetFilename, buf);
+                                    });
                                 }
                             }
                         }
@@ -313,9 +326,9 @@ function generateScaledImages(done) {
 }
 
 
-// /* ------------------------------
-//  *  ## JavaScript Functions
-//  * ------------------------------ */
+/* ------------------------------
+ *  ## JavaScript Functions
+ * ------------------------------ */
 
 /**
  * Combine JavaScript into one file
@@ -369,22 +382,22 @@ function resetPages(done) {
  *  ## SASS Functions
  * ------------------------------ */
 
-// /**
-//  * Compile Sass into CSS
-//  * In production, the CSS is compressed
-//  */
-// function generateSASS() {
-//     return gulp.src(config.paths.src.sass)
-//         .pipe($.sourcemaps.init())
-//         .pipe($.dartSass().on('error', $.dartSass.logError))
-//         .pipe($.autoprefixer())
-//         // Comment in the pipe below to run UnCSS in production
-//         // .pipe($.if(PRODUCTION, $.uncss(UNCSS_OPTIONS)))
-//         .pipe($.if(PRODUCTION, $.cssnano()))
-//         .pipe($.if(!PRODUCTION, $.sourcemaps.write()))
-//         .pipe(gulp.dest(config.paths.dist.css))
-//         .pipe(browser.reload({ stream: true }));
-// }
+/**
+ * Compile Sass into CSS
+ * In production, the CSS is compressed
+ */
+function generateSASS() {
+    return gulp.src(config.paths.src.sass)
+        .pipe($.sourcemaps.init())
+        .pipe($.dartSass().on('error', $.dartSass.logError))
+        .pipe($.autoprefixer())
+        // Comment in the pipe below to run UnCSS in production
+        // .pipe($.if(PRODUCTION, $.uncss(UNCSS_OPTIONS)))
+        .pipe($.if(PRODUCTION, $.cssnano()))
+        .pipe($.if(!PRODUCTION, $.sourcemaps.write()))
+        .pipe(gulp.dest(config.paths.dist.css))
+        .pipe(browser.reload({ stream: true }));
+}
 
 
 /* ------------------------------
@@ -404,136 +417,131 @@ function generateSprites(done) {
     done();
 }
 
-// /**
-//  * Task-Function
-//  * Determines all sprite folders inside the sprite-src folder and
-//  * runs the generateSprite function on each of them.
-//  */
-// function generateSingleSprite() {
-//     return generateSprite(null);
-// }
-//
-// /**
-//  * Creates and runs the Node-Sprite-Generator on the given folder.
-//  * Only PNG files will be used for the sprite. The output is a sprite PNG and a
-//  * SASS source file with all containing image informations.
-//  * @param folder
-//  * @returns {*}
-//  */
-// function generateSprite(folder) {
-//     let currentSprite = folder;
-//     if (typechecks.isEmpty(folder)) {
-//         folder = '';
-//         currentSprite = 'all-sprites';
-//     }
-//
-//     return new Promise(function(resolve, reject) {
-//         console.log(`Start generating sprite for '${currentSprite}' ...`);
-//
-//         let spriteName =        `-${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}-`;
-//         let spriteFilename =    `${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}.png`;
-//         let stylesheetFilename =`${config.nsg.stylesheet_prefix}${currentSprite}${config.nsg.stylesheet_suffix}${config.nsg.stylesheet_extension}`;
-//
-//         const nsgConfig = {
-//             spritePath: path.join(config.nsg.sprite_target, spriteFilename),
-//             src: [
-//                 path.join(config.nsg.sprite_src, folder, '**/*.{png,jpg,jpeg}')
-//             ],
-//             stylesheet: 'scss',
-//             stylesheetPath: path.join(config.nsg.stylesheet_target, stylesheetFilename ),
-//             stylesheetOptions: {
-//                 prefix: spriteName,
-//                 spritePath: `src/assets/img/sprites/${spriteFilename}`
-//             },
-//             compositor: 'jimp',
-//             layout: 'packed',
-//             layoutOptions: {
-//                 padding: 30
-//             }
-//         };
-//
-//         nsg( nsgConfig, function (err) {
-//
-//             if (err) {
-//                 reject(err);
-//             }
-//             else {
-//                 console.log(`Sprite for '${currentSprite}' generated!`);
-//                 resolve();
-//             }
-//         });
-//         resolve();
-//     });
-// }
-//
-//
-// /* ------------------------------
-//  *  ## Styleguide Functions
-//  * ------------------------------ */
-//
-// /**
-//  * generateStyleGuide
-//  * @param done
-//  * Generate a style guide from the Markdown content and HTML template in styleguide/
-//  */
-// function generateStyleGuide(done) {
-//     console.warn( 'StyleGuide Funktionalität muss wieder aktiviert werden!' );
-//     done();
-//     /* TODO
-//
-//         sherpa('src/styleguide/index.md',
-//             {
-//                 output: config.paths.dist.path + '/doc/styleguide.html',
-//                 template: 'src/styleguide/template.html'
-//             },
-//             done
-//         );
-//
-//      */
-// }
-//
-//
-// /* ------------------------------
-//  *  ## SVG Sprite Functions
-//  * ------------------------------ */
-//
-// /**
-//  * generateSvgSprite
-//  * @returns {*}
-//  */
-// function generateSvgSprite() {
-//     return gulp.src(config.svgsprite.src)
-//         .pipe($.svgSprite({
-//             mode: {
-//                 css: {
-//                     dest: './scss',
-//                     bust: false,
-//                     sprite: '../../assets/img/svg-sprites/svg-sprite.view.svg',
-//                     layout: 'diagonal',
-//                     mixin: 'sprite',
-//                     render: {
-//                         scss: {
-//                             dest: 'svg-sprites/_svg-sprite.view.scss',
-//                             template: 'src/assets/img-src/tpl/sprite-template.hbs'
-//                         }
-//                     }
-//                 }
-//             },
-//             shape: {
-//                 spacing: {
-//                     padding: 1,
-//                     box: 'padding'
-//                 }
-//             }
-//         }))
-//         .pipe(gulp.dest('build/assets'));
-// }
-//
-//
-//
-// /* ==================================================================================================================
-//  *  # Tasks
-//  * ================================================================================================================== */
+/**
+ * Task-Function
+ * Determines all sprite folders inside the sprite-src folder and
+ * runs the generateSprite function on each of them.
+ */
+function generateSingleSprite() {
+    return generateSprite(null);
+}
+
+/**
+ * Creates and runs the Node-Sprite-Generator on the given folder.
+ * Only PNG files will be used for the sprite. The output is a sprite PNG and a
+ * SASS source file with all containing image informations.
+ * @param folder
+ * @returns {*}
+ */
+function generateSprite(folder) {
+    let currentSprite = folder;
+    if (typechecks.isEmpty(folder)) {
+        folder = '';
+        currentSprite = 'all-sprites';
+    }
+
+    return new Promise(function(resolve, reject) {
+        console.log(`Start generating sprite for '${currentSprite}' ...`);
+
+        let spriteName =        `-${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}-`;
+        let spriteFilename =    `${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}.png`;
+        let stylesheetFilename =`${config.nsg.stylesheet_prefix}${currentSprite}${config.nsg.stylesheet_suffix}${config.nsg.stylesheet_extension}`;
+
+        const nsgConfig = {
+            spritePath: path.join(config.nsg.sprite_target, spriteFilename),
+            src: [
+                path.join(config.nsg.sprite_src, folder, '**/*.{png,jpg,jpeg}')
+            ],
+            stylesheet: 'scss',
+            stylesheetPath: path.join(config.nsg.stylesheet_target, stylesheetFilename ),
+            stylesheetOptions: {
+                prefix: spriteName,
+                spritePath: `src/assets/img/sprites/${spriteFilename}`
+            },
+            compositor: 'jimp',
+            layout: 'packed',
+            layoutOptions: {
+                padding: 30
+            }
+        };
+
+        nsg( nsgConfig, function (err) {
+            if (err) {
+                reject(err);
+            }
+            else {
+                console.log(`Sprite for '${currentSprite}' generated!`);
+                resolve();
+            }
+        });
+        resolve();
+    });
+}
+
+
+/* ------------------------------
+ *  ## Styleguide Functions
+ * ------------------------------ */
+
+/**
+ * generateStyleGuide
+ * @param done
+ * Generate a style guide from the Markdown content and HTML template in styleguide
+ */
+function generateStyleGuide(done) {
+    let target = config.paths.dist.path + '/doc';
+    ensureFolder(target);
+    sherpa('src/styleguide/index.md',
+        {
+            output: target + '/styleguide.html',
+            template: 'src/templates/styleguide/styleguide-template.hbs'
+        },
+        done
+    );
+}
+
+
+/* ------------------------------
+ *  ## SVG Sprite Functions
+ * ------------------------------ */
+
+/**
+ * generateSvgSprite
+ * @returns {*}
+ */
+function generateSvgSprite() {
+    return gulp.src(config.svgsprite.src)
+        .pipe($.svgSprite({
+            mode: {
+                css: {
+                    dest: './',
+                    bust: false,
+                    sprite: 'sprites/svg-sprite.view.svg',
+                    layout: 'diagonal',
+                    mixin: 'sprite',
+                    render: {
+                        scss: {
+                            dest: 'scss/_svg-sprite.scss',
+                            template: 'src/templates/svg/sprites/sprite-template.hbs'
+                        }
+                    }
+                }
+            },
+            shape: {
+                spacing: {
+                    padding: 1,
+                    box: 'padding'
+                }
+            }
+        }))
+        .pipe(gulp.dest('build/svg-sprites'));
+}
+
+
+
+/* ==================================================================================================================
+ *  # Tasks
+ * ================================================================================================================== */
 
 /**
  * Task: clean-dist
@@ -553,10 +561,18 @@ gulp.task('copy-assets', copyAssets );
  */
 gulp.task('copy-images', copyImages );
 
-// gulp.task('copy-init', copyInitJs );
-//
-// gulp.task('copy-gsb-modules', copyGsbModules );
-//
+/**
+ * Task: copy-init-js
+ * runs: copyInitJs function
+ */
+gulp.task('copy-init-js', copyInitJs );
+
+/**
+ * Task: copy-gsb-modules
+ * runs: copyGsbModules function
+ */
+gulp.task('copy-gsb-modules', copyGsbModules );
+
 /**
  * Task: generate-js
  * runs: generateJS function
@@ -569,12 +585,12 @@ gulp.task('generate-js', generateJS );
  */
 gulp.task('generate-pages', generatePages );
 
-// /**
-//  * Task: generate-sass
-//  * runs: generateSASS function
-//  */
-// gulp.task('generate-sass', generateSASS );
-//
+/**
+ * Task: generate-sass
+ * runs: generateSASS function
+ */
+gulp.task('generate-sass', generateSASS );
+
 /**
  * Task: generate-scaled-images
  * runs: generateScaledImages function
@@ -587,71 +603,65 @@ gulp.task('generate-scaled-images', generateScaledImages );
  */
 gulp.task('generate-sprites', generateSprites );
 
-// /**
-//  * Task: generate-single-sprite
-//  * runs: generateSingleSprite function
-//  */
-// gulp.task('generate-single-sprite', generateSingleSprite );
-//
-// /**
-//  * Task: generate-svg-sprite
-//  * runs: generateSvgSprite function
-//  */
-// gulp.task('generate-svg-sprite', generateSvgSprite );
-//
-// /**
-//  * Task: generate-styleguide
-//  * runs: generateStyleGuide function
-//  */
-// gulp.task('generate-styleguide', generateStyleGuide );
-//
-// /**
-//  * Task: generate-svg-sprite
-//  * runs: generateSvgSprite function
-//  */
-// gulp.task('generate-svg-sprite', generateSvgSprite );
-//
-// /**
-//  * Task: run-server
-//  * runs: startServer function, watch function
-//  */
-// gulp.task('run-server',
-//     gulp.series(
-//         startServer,
-//         watch
-//     )
-// );
-//
-//
-// /**
-//  * Task: built
-//  * runs: generate-sass task, generate-js task, copy-images task
-//  */
-// gulp.task('built',
-//     gulp.series(
-//         'clean',
-//         'generate-svg-sprite',
-//         gulp.parallel(
-//             'generate-js',
-//             'copy-assets',
-//             'copy-init',
-//             'copy-gsb-modules',
-//             'generate-sass',
-//             'copy-images',
-//             'generate-pages'
-//         ),
-//         'generate-styleguide'
-//     )
-// );
-//
-//
-// /**
-//  * Task: default
-//  * runs: built task, run-server task
-//  */
-// gulp.task('default',
-//     gulp.series(
-//         'built',
-//         'run-server'
-//     )
-// );
+/**
+ * Task: generate-single-sprite
+ * runs: generateSingleSprite function
+ */
+gulp.task('generate-single-sprite', generateSingleSprite );
+
+/**
+ * Task: generate-svg-sprite
+ * runs: generateSvgSprite function
+ */
+gulp.task('generate-svg-sprite', generateSvgSprite );
+
+/**
+ * Task: generate-styleguide
+ * runs: generateStyleGuide function
+ */
+gulp.task('generate-styleguide', generateStyleGuide );
+
+/**
+ * Task: run-server
+ * runs: startServer function, watch function
+ */
+gulp.task('run-server',
+    gulp.series(
+        startServer,
+        watch
+    )
+);
+
+
+/**
+ * Task: built
+ * runs: generate-sass task, generate-js task, copy-images task
+ */
+gulp.task('built',
+    gulp.series(
+        'clean',
+        'generate-svg-sprite',
+        gulp.parallel(
+            'generate-js',
+            'copy-assets',
+            'copy-init-js',
+            'copy-gsb-modules',
+            'generate-sass',
+            'copy-images',
+            'generate-pages'
+        ),
+        'generate-styleguide'
+    )
+);
+
+
+/**
+ * Task: default
+ * runs: built task, run-server task
+ */
+gulp.task('default',
+    gulp.series(
+        'built',
+        'run-server'
+    )
+);
