@@ -228,7 +228,7 @@ function copyImages() {
 function generateScaledImages(done) {
     // let files = gulp.src(config.sharp.src);
     let files = glob.sync(
-        config.resizer.src,
+        config.resizeimg.src,
         {
             "absolute": true
         }
@@ -236,7 +236,7 @@ function generateScaledImages(done) {
 
     for (let file of files) {
         if (typechecks.isNotEmpty(file)) {
-            let indexRelativPath = file.indexOf(config.resizer.path);
+            let indexRelativPath = file.indexOf(config.resizeimg.path);
 
             if (indexRelativPath > -1) {
                 let absolutPathPrefix = "";
@@ -245,24 +245,24 @@ function generateScaledImages(done) {
                 }
 
                 if (file.length > indexRelativPath) {
-                    let filename = file.substring(indexRelativPath + config.resizer.path.length);
+                    let filename = file.substring(indexRelativPath + config.resizeimg.path.length);
 
-                    for( let dimensionKey in config.resizer.sizes ) {
+                    for( let dimensionKey in config.resizeimg.sizes ) {
                         let indexExtension = filename.lastIndexOf('.');
 
                         if (indexExtension > -1) {
-                            if (config.resizer.sizes.hasOwnProperty(dimensionKey)) {
-                                let dimension = config.resizer.sizes[dimensionKey];
+                            if (config.resizeimg.sizes.hasOwnProperty(dimensionKey)) {
+                                let dimension = config.resizeimg.sizes[dimensionKey];
 
                                 if (typechecks.isNotEmpty(dimension)) {
                                     // Pruefen, ob height und width gesetzt sind
-                                    let resizerOptions = {};
+                                    let resizeimgOptions = {};
                                     let bHasWidth = typechecks.isNumeric(dimension.width);
                                     let bHasHeight = typechecks.isNumeric(dimension.height);
 
                                     // Fehlen beide Dimensionsangaben, dann diese Groese ueberspringen
                                     if (!bHasWidth && !bHasHeight) {
-                                        console.log("size '" + dimensionKey + "' besitzt weder eine Hoehen noch eine Breitenangabe!");
+                                        log("size '" + dimensionKey + "' besitzt weder eine Hoehen noch eine Breitenangabe!");
                                         continue;
                                     }
 
@@ -277,7 +277,7 @@ function generateScaledImages(done) {
                                     }
 
                                     // Zielpfad, Filename und Subfolder ermitteln
-                                    let targetPath = absolutPathPrefix + '/' + config.resizer.target;
+                                    let targetPath = absolutPathPrefix + '/' + config.resizeimg.target;
                                     let subFolder = "";
                                     let targetFilename = "";
 
@@ -287,7 +287,7 @@ function generateScaledImages(done) {
                                         subFolder = filename.substring(0, subFoldersEndIndex);
                                     }
 
-                                    if (typechecks.isTrue(config.resizer.options.createFolders)) {
+                                    if (typechecks.isTrue(config.resizeimg.options.createFolders)) {
                                         targetPath += '/' + dimensionKey;
                                     }
 
@@ -298,25 +298,27 @@ function generateScaledImages(done) {
                                         targetFilename = filename.substring(0, indexExtension);
                                     }
 
-                                    if (typechecks.isFalse(config.resizer.options.createFolders)) {
+                                    if (typechecks.isFalse(config.resizeimg.options.createFolders)) {
                                         targetFilename += '_';
                                         targetFilename += dimensionKey;
                                         targetFilename += filename.substring(indexExtension);
                                     }
 
                                     if (typechecks.isNumeric(dimension.width)) {
-                                        resizerOptions['width'] = dimension.width;
+                                        resizeimgOptions['width'] = dimension.width;
                                     }
                                     if (typechecks.isNumeric(dimension.height)) {
-                                        resizerOptions['height'] = dimension.height;
+                                        resizeimgOptions['height'] = dimension.height;
                                     }
 
                                     targetPath += '/' + subFolder;
 
                                     ensureFolder(targetPath);
 
-                                    resizeImage(fs.readFileSync(file), resizerOptions).then(buf => {
-                                        fs.writeFileSync(targetPath + '/' + targetFilename, buf);
+                                    let targetFile = path.join(targetPath, targetFilename);
+                                    log('targetFile ' + targetFile);
+                                    resizeImage(fs.readFileSync(file), resizeimgOptions).then(buf => {
+                                        fs.writeFileSync(targetFile, buf);
                                     });
                                 }
                             }
@@ -445,7 +447,7 @@ function generateSprite(folder) {
     }
 
     return new Promise(function(resolve, reject) {
-        console.log(`Start generating sprite for '${currentSprite}' ...`);
+        log(`Start generating sprite for '${currentSprite}'.`);
 
         let spriteName =        `-${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}-`;
         let spriteFilename =    `${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}.png`;
@@ -474,7 +476,7 @@ function generateSprite(folder) {
                 reject(err);
             }
             else {
-                console.log(`Sprite for '${currentSprite}' generated!`);
+                log(`Sprite for '${currentSprite}' generated!`);
                 resolve();
             }
         });
@@ -498,7 +500,7 @@ function generateStyleGuide(done) {
     sherpa('src/styleguide/index.md',
         {
             output: target + '/styleguide.html',
-            template: 'src/templates/styleguide/styleguide-template.hbs'
+            template: 'src/templates/styleguide/template.hbs'
         },
         done
     );
@@ -516,20 +518,33 @@ function generateStyleGuide(done) {
 function generateSvgSprite() {
     return gulp.src(config.svgsprite.src)
         .pipe($.svgSprite({
+            dest: './',
+            bust: false,
             mode: {
                 css: {
-                    dest: './',
-                    bust: false,
-                    sprite: 'sprites/svg-sprite.view.svg',
+                    sprite: "sprites/sprite.css.svg",
                     layout: 'diagonal',
+                    prefix: ".svgsprite-%s",
+                    dimensions: "-dims",
                     mixin: 'sprite',
                     render: {
+                        css: {
+                            dest: 'css/_svg-sprite.css'
+                        },
                         scss: {
-                            dest: 'scss/_svg-sprite.scss',
-                            template: 'src/templates/svg/sprites/svg-sprite-template.hbs'
+                            dest: 'scss/_svg-sprite.scss'
+                        },
+                        less: {
+                            dest: 'less/_svg-sprite.less'
+                        },
+                        styl: {
+                            dest: 'styl/_svg-sprite.styl'
                         }
+                    },
+                    example: {
+                        dest: 'html/svg-sprite-example.html'
                     }
-                }
+                },
             },
             shape: {
                 spacing: {

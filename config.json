@@ -209,14 +209,14 @@
     }
   },
 
-  "resizer": {
-    "path": "src/media/images/resizer/",
-    "src": "src/media/images/resizer/**/{*.bmp,*.jpg,*.jpeg,*.png}",
+  "resizeimg": {
+    "path": "src/media/images/resizeimg/",
+    "src": "src/media/images/resizeimg/**/{*.bmp,*.jpg,*.jpeg,*.png}",
     "target": "build/resizeimg",
     "prefix": "scaled-",
     "suffix": "",
     "options": {
-      "createFolders": true
+      "createFolders": false
     },
     "sizes": {
       "XS": {
