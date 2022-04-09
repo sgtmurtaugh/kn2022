@@ -277,7 +277,7 @@ function generateScaledImages(done) {
                                     }
 
                                     // Zielpfad, Filename und Subfolder ermitteln
-                                    let targetPath = absolutPathPrefix + '/' + config.resizeimg.target;
+                                    let targetPath = path.join(absolutPathPrefix, config.resizeimg.target);
                                     let subFolder = "";
                                     let targetFilename = "";
 
@@ -288,7 +288,7 @@ function generateScaledImages(done) {
                                     }
 
                                     if (typechecks.isTrue(config.resizeimg.options.createFolders)) {
-                                        targetPath += '/' + dimensionKey;
+                                        targetPath = path.join(targetPath, dimensionKey);
                                     }
 
                                     if (subFoldersEndIndex > -1) {
@@ -301,8 +301,9 @@ function generateScaledImages(done) {
                                     if (typechecks.isFalse(config.resizeimg.options.createFolders)) {
                                         targetFilename += '_';
                                         targetFilename += dimensionKey;
-                                        targetFilename += filename.substring(indexExtension);
                                     }
+
+                                    targetFilename += filename.substring(indexExtension);
 
                                     if (typechecks.isNumeric(dimension.width)) {
                                         resizeimgOptions['width'] = dimension.width;
@@ -311,8 +312,7 @@ function generateScaledImages(done) {
                                         resizeimgOptions['height'] = dimension.height;
                                     }
 
-                                    targetPath += '/' + subFolder;
-
+                                    targetPath = path.join(targetPath, subFolder);
                                     ensureFolder(targetPath);
 
                                     let targetFile = path.join(targetPath, targetFilename);
