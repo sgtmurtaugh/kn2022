@@ -1,0 +1,6 @@
+@use '../abstract';
+
+:root {
+  --color-black: #{abstract.$black};
+  --color-white: #{abstract.$white};
+}

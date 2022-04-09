@@ -526,7 +526,7 @@ function generateSvgSprite() {
                     render: {
                         scss: {
                             dest: 'scss/_svg-sprite.scss',
-                            template: 'src/templates/svg/sprites/sprite-template.hbs'
+                            template: 'src/templates/svg/sprites/svg-sprite-template.hbs'
                         }
                     }
                 }
