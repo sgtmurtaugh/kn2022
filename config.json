@@ -216,48 +216,132 @@
     "prefix": "scaled-",
     "suffix": "",
     "options": {
-      "createFolders": false
+      "createFolders": true
     },
     "sizes": {
-      "XS": {
+      "teaser-xs": {
         "width": 150,
         "height": 150
       },
-      "S": {
+      "teaser-s": {
         "width": 250,
         "height": 250
       },
-      "M": {
+      "teaser-m": {
         "width": 350,
         "height": 350
       },
-      "L": {
+      "teaser-l": {
         "width": 450,
         "height": 450
       },
-      "XL": {
+      "teaser-xl": {
         "width": 550,
         "height": 550
       },
-      "XXL": {
+      "teaser-xxl": {
         "width": 650,
         "height": 650
       },
-      "teaser": {
-        "_height": -1,
-        "width": 500
+
+      "standard-xs": {
+        "width": 150,
+        "height": 150
       },
-      "standard": {
-        "_height": -1,
-        "width": 500
+      "standard-s": {
+        "width": 250,
+        "height": 250
       },
-      "poster": {
-        "height": 900,
-        "_width": -1
+      "standard-m": {
+        "width": 350,
+        "height": 350
       },
-      "banner": {
-        "height": 1000,
-        "_width": -1
+      "standard-l": {
+        "width": 450,
+        "height": 450
+      },
+      "standard-xl": {
+        "width": 550,
+        "height": 550
+      },
+      "standard-xxl": {
+        "width": 650,
+        "height": 650
+      },
+
+      "poster-xs": {
+        "width": 150,
+        "height": 150
+      },
+      "poster-s": {
+        "width": 250,
+        "height": 250
+      },
+      "poster-m": {
+        "width": 350,
+        "height": 350
+      },
+      "poster-l": {
+        "width": 450,
+        "height": 450
+      },
+      "poster-xl": {
+        "width": 550,
+        "height": 550
+      },
+      "poster-xxl": {
+        "width": 650,
+        "height": 650
+      },
+
+      "banner-xs": {
+        "width": 150,
+        "height": 150
+      },
+      "banner-s": {
+        "width": 250,
+        "height": 250
+      },
+      "banner-m": {
+        "width": 350,
+        "height": 350
+      },
+      "banner-l": {
+        "width": 450,
+        "height": 450
+      },
+      "banner-xl": {
+        "width": 550,
+        "height": 550
+      },
+      "banner-xxl": {
+        "width": 650,
+        "height": 650
+      },
+
+      "tile-xs": {
+        "width": 150,
+        "height": 150
+      },
+      "tile-s": {
+        "width": 250,
+        "height": 250
+      },
+      "tile-m": {
+        "width": 350,
+        "height": 350
+      },
+      "tile-l": {
+        "width": 450,
+        "height": 450
+      },
+      "tile-xl": {
+        "width": 550,
+        "height": 550
+      },
+      "tile-xxl": {
+        "width": 650,
+        "height": 650
       }
     }
   }

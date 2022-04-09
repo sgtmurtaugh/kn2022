@@ -226,7 +226,6 @@ function copyImages() {
  * @param done
  */
 function generateScaledImages(done) {
-    // let files = gulp.src(config.sharp.src);
     let files = glob.sync(
         config.resizeimg.src,
         {
@@ -255,18 +254,18 @@ function generateScaledImages(done) {
                                 let dimension = config.resizeimg.sizes[dimensionKey];
 
                                 if (typechecks.isNotEmpty(dimension)) {
-                                    // Pruefen, ob height und width gesetzt sind
+                                    // check configured height / widht
                                     let resizeimgOptions = {};
                                     let bHasWidth = typechecks.isNumeric(dimension.width);
                                     let bHasHeight = typechecks.isNumeric(dimension.height);
 
-                                    // Fehlen beide Dimensionsangaben, dann diese Groese ueberspringen
                                     if (!bHasWidth && !bHasHeight) {
-                                        log("size '" + dimensionKey + "' besitzt weder eine Hoehen noch eine Breitenangabe!");
+                                        log("size '${dimensionKey}' besitzt weder eine Hoehen noch eine Breitenangabe!");
                                         continue;
                                     }
 
-                                    // default setzen, wenn nur eine Dimensionsangabe angegeben wurde
+
+                                    // set auto dimension for missing config
                                     if (!bHasWidth) {
                                         // dimension.width = -1;
                                         dimension.width = "auto";
@@ -276,10 +275,10 @@ function generateScaledImages(done) {
                                         dimension.height = "auto";
                                     }
 
-                                    // Zielpfad, Filename und Subfolder ermitteln
+
+                                    // create targetFolder
                                     let targetPath = path.join(absolutPathPrefix, config.resizeimg.target);
                                     let subFolder = "";
-                                    let targetFilename = "";
 
                                     // SubFolder check
                                     let subFoldersEndIndex = filename.lastIndexOf('/');
@@ -287,10 +286,15 @@ function generateScaledImages(done) {
                                         subFolder = filename.substring(0, subFoldersEndIndex);
                                     }
 
+                                    targetPath = path.join(targetPath, subFolder);
                                     if (typechecks.isTrue(config.resizeimg.options.createFolders)) {
                                         targetPath = path.join(targetPath, dimensionKey);
                                     }
+                                    ensureFolder(targetPath);
 
+
+                                    // create Filename
+                                    let targetFilename = "";
                                     if (subFoldersEndIndex > -1) {
                                         targetFilename = filename.substring(subFoldersEndIndex, indexExtension);
                                     }
@@ -305,6 +309,11 @@ function generateScaledImages(done) {
 
                                     targetFilename += filename.substring(indexExtension);
 
+                                    let targetFile = path.join(targetPath, targetFilename);
+                                    log('targetFile ' + targetFile);
+
+
+                                    // create resizeimg options
                                     if (typechecks.isNumeric(dimension.width)) {
                                         resizeimgOptions['width'] = dimension.width;
                                     }
@@ -312,11 +321,8 @@ function generateScaledImages(done) {
                                         resizeimgOptions['height'] = dimension.height;
                                     }
 
-                                    targetPath = path.join(targetPath, subFolder);
-                                    ensureFolder(targetPath);
 
-                                    let targetFile = path.join(targetPath, targetFilename);
-                                    log('targetFile ' + targetFile);
+                                    // generate resized images
                                     resizeImage(fs.readFileSync(file), resizeimgOptions).then(buf => {
                                         fs.writeFileSync(targetFile, buf);
                                     });
