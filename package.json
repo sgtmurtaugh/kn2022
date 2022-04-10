@@ -5,6 +5,15 @@
   "main": "index.js",
   "type__": "module",
   "scripts": {
+    "generate-nsg-single-sprite": "gulp generate-nsg-single-sprite",
+    "generate-nsg-sprites": "gulp generate-nsg-single-sprites",
+    "generate-svg-sprites": "gulp generate-svgsprite-sprite",
+    "dev-styleguide": "gulp styleguide",
+    "dev-gulp": "gulp default",
+    "dev-parcel": "parcel 'src/**/*'",
+    "dev": "npm run dev-parcel && npm run dev-gulp",
+    "build-parcel": "parcel build 'build/**/*'",
+    "build": "npm run build-parcel",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

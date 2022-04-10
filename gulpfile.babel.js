@@ -162,12 +162,11 @@ function clean(done) {
 function copyAssets() {
     return gulp.src([
         "src/assets/**/*",
-        "!src/assets/img{,/**}",
-        "!src/assets/img-src{,/**}",
+        "!src/assets/media/images{,/**}",
         "!src/assets/js{,/**}",
         "!src/assets/scss{,/**}"
     ]).pipe(gulp.dest(
-        config.paths.dist.path + '/' + config.paths.dist.assets
+        path.join(config.paths.dist.path, config.paths.dist.assets)
     ));
 }
 
@@ -176,7 +175,7 @@ function copyAssets() {
  * @returns {*}
  */
 function copyInitJs() {
-    return gulp.src("src/assets/vendors/gsb/js/init.js").pipe(gulp.dest(config.paths.dist.path + '/' + config.paths.dist.assets + '/js'));
+    return gulp.src("src/assets/vendors/gsb/js/init.js").pipe(path.join(gulp.dest(config.paths.dist.path, config.paths.dist.assets, 'js')));
 }
 
 /**
@@ -184,8 +183,7 @@ function copyInitJs() {
  * @returns {*}
  */
 function copyGsbModules() {
-    return gulp.src("src/assets/vendors/gsb/js/gsb/**/*.js").pipe(gulp.dest(config.paths.dist.path + '/' + config.paths.dist.assets + '/js/gsb'));
-
+    return gulp.src("src/assets/vendors/gsb/js/gsb/**/*.js").pipe(gulp.dest(path.join(config.paths.dist.path, config.paths.dist.assets, '/js/gsb')));
 }
 
 /**
@@ -195,7 +193,7 @@ function copyGsbModules() {
  */
 function copyImages() {
     return gulp.src([
-        'src/assets/img/**'
+        'src/assets/media/images/**'
     ]).pipe($.if(PRODUCTION, $.imagemin(
         [
             $.imagemin.gifsicle({interlaced: true}),
@@ -209,23 +207,23 @@ function copyImages() {
             })
         ]
         /** gulp-imigemin groesser 3
-         {
+        {
             progressive: true
         }
          */
-    ))).pipe(gulp.dest('dist/assets/img'));
+    ))).pipe(gulp.dest('dist/assets/media/images'));
 }
 
 
 /* ------------------------------
- *  ## Image Scaler Functions
+ *  ## resizeimg
  * ------------------------------ */
 
 /**
- * generateScaledImages
+ * generateResizeimgScaledImages
  * @param done
  */
-function generateScaledImages(done) {
+function generateResizeimgScaledImages(done) {
     let files = glob.sync(
         config.resizeimg.src,
         {
@@ -261,7 +259,7 @@ function generateScaledImages(done) {
                                     let bHasHeight = typechecks.isNumeric(dimension.height);
 
                                     if (!bHasWidth && !bHasHeight) {
-                                        log("size '${dimensionKey}' besitzt weder eine Hoehen noch eine Breitenangabe!");
+                                        log.warn(`size '${dimensionKey}' has no height and width!`);
                                         continue;
                                     }
 
@@ -311,7 +309,6 @@ function generateScaledImages(done) {
                                     targetFilename += filename.substring(indexExtension);
 
                                     let targetFile = path.join(targetPath, targetFilename);
-                                    log('targetFile ' + targetFile);
 
 
                                     // create resizeimg options
@@ -414,7 +411,7 @@ function generateSASS() {
 
 
 /* ------------------------------
- *  ## Sprite Functions
+ *  ## node-sprite-generator (nsg)
  * ------------------------------ */
 
 /**
@@ -422,18 +419,17 @@ function generateSASS() {
  * Determines all sprite folders inside the sprite-src folder and
  * runs the generateSprite function on each of them.
  */
-function generateSprites(done) {
+function generateNsgSprites(done) {
     let folders = glob.sync(path.join(config.nsg.sprite_src, '*'), {
         "ignore": ['**/*.ignore']
 
     }).filter(function (folder) {
-
         if (fs.statSync(folder).isFile()) {
-            log(`no parent sprite-folder definied. file '${folder}' will be ignored!`);
+            log.warn(`no parent sprite-folder definied. file '${folder}' will be ignored! move image to a new/existing parent and restart the generate task.`);
             return false;
         }
 
-        let globImages = glob.sync( folder + '**/*.{png,jpg,jpeg}' );
+        let globImages = glob.sync( path.join(folder, '**/*.{png,jpg,jpeg}' ));
         return (globImages.length >= 1);
 
     }).map(function (folder) {
@@ -448,7 +444,7 @@ function generateSprites(done) {
     });
 
     folders.forEach( async function (folder) {
-        return await generateSprite(folder);
+        return await generateNsgSprite(folder);
     });
     done();
 }
@@ -458,8 +454,8 @@ function generateSprites(done) {
  * Determines all sprite folders inside the sprite-src folder and
  * runs the generateSprite function on each of them.
  */
-function generateSingleSprite() {
-    return generateSprite(null);
+function generateNsgSingleSprite() {
+    return generateNsgSprite(null);
 }
 
 /**
@@ -469,32 +465,38 @@ function generateSingleSprite() {
  * @param folder
  * @returns {*}
  */
-function generateSprite(folder) {
+function generateNsgSprite(folder) {
     let currentSprite = folder;
     if (typechecks.isEmpty(folder)) {
         folder = '';
         currentSprite = 'all-sprites';
     }
-
+log('folder: ' +folder );
     return new Promise(function(resolve, reject) {
         log(`Start generating sprite for '${currentSprite}'.`);
 
-        let spriteName =        `-${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}-`;
-        let spriteFilename =    `${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}.png`;
+        let spriteFilename = `${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}.png`;
+        let spritePath = path.join(config.nsg.sprite_target, spriteFilename);
+        let spriteSrc = path.join(config.nsg.sprite_src, folder, '**/*.{png,jpg,jpeg}');
         let stylesheetFilename =`${config.nsg.stylesheet_prefix}${currentSprite}${config.nsg.stylesheet_suffix}${config.nsg.stylesheet_extension}`;
+        let stylesheetPath = path.join(config.nsg.stylesheet_target, stylesheetFilename);
+        log('stylesheetPath: '+stylesheetPath);
+        let stylesheetPrefix = `-${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}-`;
+        let stylesheetSpriteUrl = `src/assets/media/images/sprites/${spriteFilename}`;
+
+log(glob.sync(spriteSrc).length);
+
 
         const nsgConfig = {
-            spritePath: path.join(config.nsg.sprite_target, spriteFilename),
-            src: [
-                path.join(config.nsg.sprite_src, folder, '**/*.{png,jpg,jpeg}')
-            ],
-            stylesheet: 'scss',
-            stylesheetPath: path.join(config.nsg.stylesheet_target, stylesheetFilename ),
+            spritePath: spritePath,
+            src: [spriteSrc],
+            stylesheet: config.nsg.stylesheet,
+            stylesheetPath: stylesheetPath,
             stylesheetOptions: {
-                prefix: spriteName,
-                spritePath: `src/assets/img/sprites/${spriteFilename}`
+                prefix: stylesheetPrefix,
+                spritePath: stylesheetSpriteUrl
             },
-            compositor: 'jimp',
+            compositor: config.nsg.compositor,
             layout: config.nsg.layout,
             layoutOptions: {
                 padding: 30
@@ -503,6 +505,7 @@ function generateSprite(folder) {
 
         nsg( nsgConfig, function (err) {
             if (err) {
+                log.error(err);
                 reject(err);
             }
             else {
@@ -510,7 +513,6 @@ function generateSprite(folder) {
                 resolve();
             }
         });
-        resolve();
     });
 }
 
@@ -525,11 +527,11 @@ function generateSprite(folder) {
  * Generate a style guide from the Markdown content and HTML template in styleguide
  */
 function generateStyleGuide(done) {
-    let target = config.paths.dist.path + '/doc';
+    let target = path.join(config.paths.dist.path, 'doc');
     ensureFolder(target);
     sherpa('src/styleguide/index.md',
         {
-            output: target + '/styleguide.html',
+            output: path.join(target, 'styleguide.html'),
             template: 'src/templates/styleguide/template.hbs'
         },
         done
@@ -538,14 +540,14 @@ function generateStyleGuide(done) {
 
 
 /* ------------------------------
- *  ## SVG Sprite Functions
+ *  ## SVG-Sprite
  * ------------------------------ */
 
 /**
- * generateSvgSprite
+ * generateSvgSpriteSprite
  * @returns {*}
  */
-function generateSvgSprite() {
+function generateSvgSpriteSprite() {
     return gulp.src(config.svgsprite.src, {
         "ignore": ['**/*.ignore/**']
     }).pipe($.svgSprite({
@@ -641,28 +643,28 @@ gulp.task('generate-pages', generatePages );
 gulp.task('generate-sass', generateSASS );
 
 /**
- * Task: generate-scaled-images
+ * Task: generate-resizeimg-scaled-images
  * runs: generateScaledImages function
  */
-gulp.task('generate-scaled-images', generateScaledImages );
+gulp.task('generate-resizeimg-scaled-images', generateResizeimgScaledImages );
 
 /**
- * Task: generate-sprites
- * runs: generateSprites function
+ * Task: generate-nsg-sprites
+ * runs: generateNsgSprites function
  */
-gulp.task('generate-sprites', generateSprites );
+gulp.task('generate-nsg-sprites', generateNsgSprites );
 
 /**
- * Task: generate-single-sprite
- * runs: generateSingleSprite function
+ * Task: generate-nsg-single-sprite
+ * runs: generateNsgSingleSprite function
  */
-gulp.task('generate-single-sprite', generateSingleSprite );
+gulp.task('generate-nsg-single-sprite', generateNsgSingleSprite );
 
 /**
  * Task: generate-svg-sprite
- * runs: generateSvgSprite function
+ * runs: generateSvgSpriteSprite function
  */
-gulp.task('generate-svg-sprite', generateSvgSprite );
+gulp.task('generate-svgsprite-sprite', generateSvgSpriteSprite );
 
 /**
  * Task: generate-styleguide
@@ -689,7 +691,6 @@ gulp.task('run-server',
 gulp.task('built',
     gulp.series(
         'clean',
-        'generate-svg-sprite',
         gulp.parallel(
             'generate-js',
             'copy-assets',
