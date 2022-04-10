@@ -229,7 +229,8 @@ function generateScaledImages(done) {
     let files = glob.sync(
         config.resizeimg.src,
         {
-            "absolute": true
+            "absolute": true,
+            "ignore": ['**/*.ignore/**']
         }
     );
 
@@ -422,7 +423,30 @@ function generateSASS() {
  * runs the generateSprite function on each of them.
  */
 function generateSprites(done) {
-    let folders = getFolders(config.nsg.sprite_src);
+    let folders = glob.sync(path.join(config.nsg.sprite_src, '*'), {
+        "ignore": ['**/*.ignore']
+
+    }).filter(function (folder) {
+
+        if (fs.statSync(folder).isFile()) {
+            log(`no parent sprite-folder definied. file '${folder}' will be ignored!`);
+            return false;
+        }
+
+        let globImages = glob.sync( folder + '**/*.{png,jpg,jpeg}' );
+        return (globImages.length >= 1);
+
+    }).map(function (folder) {
+        let folderName = folder;
+        let lastFolderIndex = folder.lastIndexOf(path.sep) + 1;
+
+        if ( folder.length > lastFolderIndex ) {
+            folderName = folder.substring(lastFolderIndex);
+        }
+        return folderName;
+
+    });
+
     folders.forEach( async function (folder) {
         return await generateSprite(folder);
     });
@@ -471,7 +495,7 @@ function generateSprite(folder) {
                 spritePath: `src/assets/img/sprites/${spriteFilename}`
             },
             compositor: 'jimp',
-            layout: 'packed',
+            layout: config.nsg.layout,
             layoutOptions: {
                 padding: 30
             }
@@ -522,44 +546,44 @@ function generateStyleGuide(done) {
  * @returns {*}
  */
 function generateSvgSprite() {
-    return gulp.src(config.svgsprite.src)
-        .pipe($.svgSprite({
-            dest: './',
-            bust: false,
-            mode: {
-                css: {
-                    sprite: "sprites/sprite.css.svg",
-                    layout: 'diagonal',
-                    prefix: ".svgsprite-%s",
-                    dimensions: "-dims",
-                    mixin: 'sprite',
-                    render: {
-                        css: {
-                            dest: 'css/_svg-sprite.css'
-                        },
-                        scss: {
-                            dest: 'scss/_svg-sprite.scss'
-                        },
-                        less: {
-                            dest: 'less/_svg-sprite.less'
-                        },
-                        styl: {
-                            dest: 'styl/_svg-sprite.styl'
-                        }
+    return gulp.src(config.svgsprite.src, {
+        "ignore": ['**/*.ignore/**']
+    }).pipe($.svgSprite({
+        dest: './',
+        bust: false,
+        mode: {
+            css: {
+                sprite: "sprites/sprite.css.svg",
+                layout: config.svgsprite.layout,
+                prefix: ".svgsprite-%s",
+                dimensions: "-dims",
+                mixin: 'sprite',
+                render: {
+                    css: {
+                        dest: 'css/_svg-sprite.css'
                     },
-                    example: {
-                        dest: 'html/svg-sprite-example.html'
+                    scss: {
+                        dest: 'scss/_svg-sprite.scss'
+                    },
+                    less: {
+                        dest: 'less/_svg-sprite.less'
+                    },
+                    styl: {
+                        dest: 'styl/_svg-sprite.styl'
                     }
                 },
-            },
-            shape: {
-                spacing: {
-                    padding: 1,
-                    box: 'padding'
+                example: {
+                    dest: 'html/svg-sprite-example.html'
                 }
+            },
+        },
+        shape: {
+            spacing: {
+                padding: 1,
+                box: 'padding'
             }
-        }))
-        .pipe(gulp.dest('build/svg-sprites'));
+        }
+    })).pipe(gulp.dest('build/svg-sprites'));
 }
 
 

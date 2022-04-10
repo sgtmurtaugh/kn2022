@@ -135,6 +135,10 @@
     "sprite_target": "build/nsg/sprites",
     "sprite_prefix": "nsg-",
     "sprite_suffix": "",
+    "layout": "packed",
+    "layout_": "diagonal",
+    "layout_": "horizontal",
+    "layout_": "vertical",
     "sprite_extension": ".png",
     "stylesheet_target": "build/nsg/scss",
     "stylesheet_prefix": "_nsg-",
@@ -143,10 +147,7 @@
   },
 
   "svgsprite": {
-    "src": [
-      "src/media/svg/sprites/**/*.svg",
-      "!src/media/svg/sprites/*.ignore/**"
-    ],
+    "src": "src/media/svg/sprites/**/*.svg",
     "target": "build",
 
     "config": {
@@ -190,7 +191,9 @@
           "dest": "./assets/scss",
           "sprite": "../../assets/img/svg-sprites/svg-sprite.view.svg",
           "dimensions": "-dims",
-          "layout": "diagonal",
+          "layout": "horizontal",
+          "layout_": "vertical",
+          "layout_": "diagonal",
           "common": "",
           "mixin": "sprite",
           "bust": false,
