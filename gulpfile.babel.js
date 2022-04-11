@@ -19,7 +19,6 @@ import typechecks from '@sgtmurtaugh/typechecks';
 import glob     from 'glob';
 //import svgSpritesheet from '@mariusgundersen/gulp-svg-spritesheet';
 import log from 'fancy-log';
-import _ from 'lodash';
 
 const resizeImage   = require('resize-img');
 
@@ -473,8 +472,7 @@ function generateNsgSprite(flagSingleFileSprite, done) {
         let spriteSourceFolderName;
         if (!flagSingleFileSprite) {
             spriteSourceFolderName = spriteSource;
-            let lastFolderIndex = spriteSource.lastIndexOf(path.sep) + 1;
-
+            let lastFolderIndex = spriteSource.lastIndexOf('/') + 1;
             if ( spriteSourceFolderName.length > lastFolderIndex ) {
                 spriteSourceFolderName = spriteSource.substring(lastFolderIndex);
             }
