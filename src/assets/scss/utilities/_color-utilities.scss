@@ -1,20 +1,18 @@
 @use '../abstract';
 
-@each $color,
-$shade in abstract.$colors {
+@each $color, $shade in abstract.$colors {
 
-  @each $prop,
-  $value in $shade {
+  @each $prop, $value in $shade {
     .text-#{$color}-#{$prop} {
-      color: var(--clr-#{$color}-#{$prop}) !important;
+      color : var(--clr-#{$color}-#{$prop}) !important;
     }
 
     .bg-#{$color}-#{$prop} {
-      background-color: var(--clr-#{$color}-#{$prop}) !important;
+      background-color : var(--clr-#{$color}-#{$prop}) !important;
     }
   }
 }
 
 .primary {
-  --clr: var(--clr-primary-400);
+  --clr : var(--clr-primary-400);
 }

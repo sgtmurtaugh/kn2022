@@ -2,9 +2,9 @@
 
 @mixin breakpoint($size-key) {
 
-  $size: map-get($breakpoints, $size-key);
+  $size : map-get($breakpoints, $size-key);
 
-  @media only screen and (min-width: $size) {
+  @media only screen and (min-width : $size) {
     @content;
   }
 }

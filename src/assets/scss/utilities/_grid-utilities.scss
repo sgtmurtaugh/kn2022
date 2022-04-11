@@ -4,7 +4,7 @@
 @each $breakpoint, $size in abstract.$breakpoints {
   @for $columns from 1 through abstract.$grid-columns {
     .col-#{$breakpoint}-#{$columns} {
-      width: math.div(100% , $columns);
+      width : math.div(100%, $columns);
     }
   }
 }
