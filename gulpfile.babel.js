@@ -19,11 +19,12 @@ import typechecks from '@sgtmurtaugh/typechecks';
 import glob     from 'glob';
 //import svgSpritesheet from '@mariusgundersen/gulp-svg-spritesheet';
 import log from 'fancy-log';
+import _ from 'lodash';
 
 const resizeImage   = require('resize-img');
 
 // Load all Gulp plugins into one variable
-const $ = plugins({ 'DEBUG': true });
+const $ = plugins();
 
 // Promise Definition for Tasks without Streams or existing Promises
 const Promise = promise.Promise;
@@ -127,13 +128,13 @@ function reloadServer(done) {
  * @param done
  */
 function watch(done) {
-    gulp.watch(config.paths.src.assets, copyAssets);
-    gulp.watch('src/pages/**/*.html').on('change', gulp.series(generatePages, browser.reload));
-    gulp.watch('src/{layouts,partials}/**/{*.html,*.hbs}').on('change', gulp.series(resetPages, generatePages, browser.reload));
-    gulp.watch('src/assets/scss/**/*.scss', generateSASS);
-    gulp.watch('src/assets/js/**/*.js').on('change', gulp.series(generateJS, copyInitJs, browser.reload));
-    gulp.watch('src/assets/img/**/*').on('change', gulp.series(copyImages, browser.reload));
-    gulp.watch('src/styleguide/**').on('change', gulp.series(generateStyleGuide, browser.reload));
+    gulp.watch(config.paths.src.assets, taskCopyAssets);
+    gulp.watch('src/pages/**/*.html').on('change', gulp.series(taskGeneratePages, browser.reload));
+    gulp.watch('src/{layouts,partials}/**/{*.html,*.hbs}').on('change', gulp.series(taskResetPages, taskGeneratePages, browser.reload));
+    gulp.watch('src/assets/scss/**/*.scss', taskGenerateSASS);
+    gulp.watch('src/assets/js/**/*.js').on('change', gulp.series(taskGenerateJS, taskCopyInitJs, browser.reload));
+    gulp.watch('src/assets/img/**/*').on('change', gulp.series(taskCopyImages, browser.reload));
+    gulp.watch('src/styleguide/**').on('change', gulp.series(taskGenerateStyleGuide, browser.reload));
     done();
 }
 
@@ -143,28 +144,35 @@ function watch(done) {
  * ------------------------------ */
 
 /**
- * clean
+ * taskClean
  * @param done
  * Deletes dist and build folder
  * This happens every time a build starts
  */
-function clean(done) {
+function taskClean(done) {
     rimraf(config.paths.dist.path, done);
     rimraf(config.paths.build.path, done);
 }
 
 /**
- * copyAssets
+ * taskCopyAssets
  * @returns {*}
  * Copy files out of the assets folder
- * This task skips over the "img", "js", and "scss" folders, which are parsed separately
+ * This task skips over the "media/images", "js", and "scss" folders, which are parsed separately
  */
-function copyAssets() {
+function taskCopyAssets() {
     return gulp.src([
-        "src/assets/**/*",
-        "!src/assets/media/images{,/**}",
-        "!src/assets/js{,/**}",
-        "!src/assets/scss{,/**}"
+        "src/assets/**/!(scss|js|images)/*",
+
+
+        "_src/assets/fonts/**/*",
+        "_src/assets/js/**/*",
+        "_src/assets/vendor/**/*",
+
+
+        "___!src/assets/media/images{,/**}",
+        "___!src/assets/js{,/**}",
+        "___!src/assets/scss{,/**}"
     ]).pipe(gulp.dest(
         path.join(config.paths.dist.path, config.paths.dist.assets)
     ));
@@ -174,24 +182,23 @@ function copyAssets() {
  * TODO
  * @returns {*}
  */
-function copyInitJs() {
-    return gulp.src("src/assets/vendors/gsb/js/init.js").pipe(path.join(gulp.dest(config.paths.dist.path, config.paths.dist.assets, 'js')));
+function taskCopyInitJs() {
+    return gulp.src("src/assets/vendors/gsb/js/init.js").pipe(gulp.dest(path.join(config.paths.dist.path, config.paths.dist.assets, 'js')));
 }
 
 /**
  * TODO
  * @returns {*}
  */
-function copyGsbModules() {
+function taskCopyGsbModules() {
     return gulp.src("src/assets/vendors/gsb/js/gsb/**/*.js").pipe(gulp.dest(path.join(config.paths.dist.path, config.paths.dist.assets, '/js/gsb')));
 }
 
 /**
  * Copy images to the "dist" folder.
  * In production, the images are compressed
- * //TODO: Hier muessen alle src Ordner ignoriert werden! Leider greift die Logik hier noch nicht
  */
-function copyImages() {
+function taskCopyImages(cb) {
     return gulp.src([
         'src/assets/media/images/**'
     ]).pipe($.if(PRODUCTION, $.imagemin(
@@ -220,10 +227,10 @@ function copyImages() {
  * ------------------------------ */
 
 /**
- * generateResizeimgScaledImages
+ * taskGenerateResizeimgScaledImages
  * @param done
  */
-function generateResizeimgScaledImages(done) {
+function taskGenerateResizeimgScaledImages(done) {
     let files = glob.sync(
         config.resizeimg.src,
         {
@@ -344,7 +351,7 @@ function generateResizeimgScaledImages(done) {
  * Combine JavaScript into one file
  * In production, the file is minified
  */
-function generateJS() {
+function taskGenerateJS() {
     return gulp.src(config.paths.src.javascript)
         .pipe($.sourcemaps.init())
         .pipe($.concat('app.js'))
@@ -365,7 +372,7 @@ function generateJS() {
  * Copy page templates into finished HTML files
  * @returns {*}
  */
-function generatePages() {
+function taskGeneratePages() {
     return gulp.src('src/pages/**/*.{html,hbs,handlebars}')
         .pipe(panini({
             root: 'src/pages/',
@@ -382,7 +389,7 @@ function generatePages() {
  * @param done
  * Load updated HTML templates and partials into Panini
  */
-function resetPages(done) {
+function taskResetPages(done) {
     panini.refresh();
     done();
 }
@@ -396,7 +403,7 @@ function resetPages(done) {
  * Compile Sass into CSS
  * In production, the CSS is compressed
  */
-function generateSASS() {
+function taskGenerateSASS() {
     return gulp.src(config.paths.src.sass)
         .pipe($.sourcemaps.init())
         .pipe($.dartSass().on('error', $.dartSass.logError))
@@ -416,37 +423,10 @@ function generateSASS() {
 
 /**
  * Task-Function
- * Determines all sprite folders inside the sprite-src folder and
- * runs the generateSprite function on each of them.
+ * TODO
  */
-function generateNsgSprites(done) {
-    let folders = glob.sync(path.join(config.nsg.sprite_src, '*'), {
-        "ignore": ['**/*.ignore']
-
-    }).filter(function (folder) {
-        if (fs.statSync(folder).isFile()) {
-            log.warn(`no parent sprite-folder definied. file '${folder}' will be ignored! move image to a new/existing parent and restart the generate task.`);
-            return false;
-        }
-
-        let globImages = glob.sync( path.join(folder, '**/*.{png,jpg,jpeg}' ));
-        return (globImages.length >= 1);
-
-    }).map(function (folder) {
-        let folderName = folder;
-        let lastFolderIndex = folder.lastIndexOf(path.sep) + 1;
-
-        if ( folder.length > lastFolderIndex ) {
-            folderName = folder.substring(lastFolderIndex);
-        }
-        return folderName;
-
-    });
-
-    folders.forEach( async function (folder) {
-        return await generateNsgSprite(folder);
-    });
-    done();
+function taskGenerateNsgSprite(cb) {
+    return generateNsgSprite(true, cb);
 }
 
 /**
@@ -454,42 +434,102 @@ function generateNsgSprites(done) {
  * Determines all sprite folders inside the sprite-src folder and
  * runs the generateSprite function on each of them.
  */
-function generateNsgSingleSprite() {
-    return generateNsgSprite(null);
+function taskGenerateNsgSprites(cb) {
+    return generateNsgSprite(false, cb);
+}
+
+/**
+ * TODO
+ * Determines all sprite folders inside the sprite-src folder and
+ * runs the generateSprite function on each of them.
+ */
+function generateNsgSprite(flagSingleFileSprite, done) {
+    flagSingleFileSprite = typechecks.isBoolean(flagSingleFileSprite) ? flagSingleFileSprite : true;
+
+    let spriteSources = glob.sync(path.join(config.nsg.sprite_src, '*'), {
+        "ignore": ['**/*.ignore']
+
+    })
+    .filter(function (spriteSource) {
+        if (fs.statSync(spriteSource).isFile()) {
+            log.warn(`no parent sprite-folder definied. file '${spriteSource}' will be ignored! move image to a new/existing parent and restart the generate task.`);
+            return false;
+        }
+
+        // remain only folder with images (png, jpeg, pjg
+        let globImages = glob.sync( path.join(spriteSource, '**/*.{png,jpg,jpeg}' ));
+        return (globImages.length >= 1);
+
+    });
+
+
+    const SPRITENAME_ALL_SPRITE = 'all-sprite';
+    let spriteNames = [];
+    let spriteImages = {};
+
+
+    // determine individual sprite name and imageSources for determined sprite sources
+    spriteSources.forEach( function(spriteSource, index) {
+        let spriteSourceFolderName;
+        if (!flagSingleFileSprite) {
+            spriteSourceFolderName = spriteSource;
+            let lastFolderIndex = spriteSource.lastIndexOf(path.sep) + 1;
+
+            if ( spriteSourceFolderName.length > lastFolderIndex ) {
+                spriteSourceFolderName = spriteSource.substring(lastFolderIndex);
+            }
+        }
+        else {
+            spriteSourceFolderName = SPRITENAME_ALL_SPRITE;
+        }
+
+        // add current spriteSourceFolderName to spriteNames
+        spriteNames.push(spriteSourceFolderName);
+
+        if ( typechecks.isUndefined(spriteImages[spriteSourceFolderName])) {
+            spriteImages[spriteSourceFolderName] = [];
+        }
+
+        // add specific sprite sources
+        spriteImages[spriteSourceFolderName].push( path.join( spriteSource, '**/*.{png,jpg,jpeg}' ) );
+    });
+
+    // start nsg execution with flag depended sprite sources
+    if ( typechecks.isNotEmpty(spriteImages) ) {
+        if ( flagSingleFileSprite ) {
+            return executeNsg( spriteNames[0], spriteImages[spriteNames[0]] );
+        }
+        else {
+            spriteSources.forEach( async function ( spriteSource, index ) {
+                return await executeNsg( spriteNames[index], spriteImages[spriteNames[index]] );
+            } );
+        }
+    }
+    done();
 }
 
 /**
  * Creates and runs the Node-Sprite-Generator on the given folder.
  * Only PNG files will be used for the sprite. The output is a sprite PNG and a
  * SASS source file with all containing image informations.
- * @param folder
+ * @param spriteName
+ * @param spriteSources
  * @returns {*}
  */
-function generateNsgSprite(folder) {
-    let currentSprite = folder;
-    if (typechecks.isEmpty(folder)) {
-        folder = '';
-        currentSprite = 'all-sprites';
-    }
-log('folder: ' +folder );
+function executeNsg(spriteName, spriteSources) {
     return new Promise(function(resolve, reject) {
-        log(`Start generating sprite for '${currentSprite}'.`);
+        log(`Start generating sprite for '${spriteName}'.`);
 
-        let spriteFilename = `${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}.png`;
+        let spriteFilename = `${config.nsg.sprite_prefix}${spriteName}${config.nsg.sprite_suffix}.png`;
         let spritePath = path.join(config.nsg.sprite_target, spriteFilename);
-        let spriteSrc = path.join(config.nsg.sprite_src, folder, '**/*.{png,jpg,jpeg}');
-        let stylesheetFilename =`${config.nsg.stylesheet_prefix}${currentSprite}${config.nsg.stylesheet_suffix}${config.nsg.stylesheet_extension}`;
+        let stylesheetFilename =`${config.nsg.stylesheet_prefix}${spriteName}${config.nsg.stylesheet_suffix}${config.nsg.stylesheet_extension}`;
         let stylesheetPath = path.join(config.nsg.stylesheet_target, stylesheetFilename);
-        log('stylesheetPath: '+stylesheetPath);
-        let stylesheetPrefix = `-${config.nsg.sprite_prefix}${currentSprite}${config.nsg.sprite_suffix}-`;
+        let stylesheetPrefix = `-${config.nsg.sprite_prefix}${spriteName}${config.nsg.sprite_suffix}-`;
         let stylesheetSpriteUrl = `src/assets/media/images/sprites/${spriteFilename}`;
-
-log(glob.sync(spriteSrc).length);
-
 
         const nsgConfig = {
             spritePath: spritePath,
-            src: [spriteSrc],
+            src: spriteSources,
             stylesheet: config.nsg.stylesheet,
             stylesheetPath: stylesheetPath,
             stylesheetOptions: {
@@ -509,7 +549,7 @@ log(glob.sync(spriteSrc).length);
                 reject(err);
             }
             else {
-                log(`Sprite for '${currentSprite}' generated!`);
+                log(`Sprite for '${spriteName}' generated!`);
                 resolve();
             }
         });
@@ -522,11 +562,11 @@ log(glob.sync(spriteSrc).length);
  * ------------------------------ */
 
 /**
- * generateStyleGuide
+ * taskGenerateStyleGuide
  * @param done
  * Generate a style guide from the Markdown content and HTML template in styleguide
  */
-function generateStyleGuide(done) {
+function taskGenerateStyleGuide(done) {
     let target = path.join(config.paths.dist.path, 'doc');
     ensureFolder(target);
     sherpa('src/styleguide/index.md',
@@ -544,10 +584,10 @@ function generateStyleGuide(done) {
  * ------------------------------ */
 
 /**
- * generateSvgSpriteSprite
+ * taskGenerateSvgSpriteSprite
  * @returns {*}
  */
-function generateSvgSpriteSprite() {
+function taskGenerateSvgSpriteSprite() {
     return gulp.src(config.svgsprite.src, {
         "ignore": ['**/*.ignore/**']
     }).pipe($.svgSprite({
@@ -595,82 +635,82 @@ function generateSvgSpriteSprite() {
  * ================================================================================================================== */
 
 /**
- * Task: clean-dist
- * runs: clean function
+ * Task: clean
+ * runs: taskClean function
  */
-gulp.task('clean', clean );
+gulp.task('clean', taskClean );
 
 /**
  * Task: copy-assets
- * runs: copyAssets function
+ * runs: taskCopyAssets function
  */
-gulp.task('copy-assets', copyAssets );
+gulp.task('copy-assets', taskCopyAssets );
 
 /**
  * Task: copy-images
- * runs: copyImages function
+ * runs: taskCopyImages function
  */
-gulp.task('copy-images', copyImages );
+gulp.task('copy-images', taskCopyImages );
 
 /**
  * Task: copy-init-js
- * runs: copyInitJs function
+ * runs: taskCopyInitJs function
  */
-gulp.task('copy-init-js', copyInitJs );
+gulp.task('copy-init-js', taskCopyInitJs );
 
 /**
  * Task: copy-gsb-modules
- * runs: copyGsbModules function
+ * runs: taskCopyGsbModules function
  */
-gulp.task('copy-gsb-modules', copyGsbModules );
+gulp.task('copy-gsb-modules', taskCopyGsbModules );
 
 /**
  * Task: generate-js
- * runs: generateJS function
+ * runs: taskGenerateJS function
  */
-gulp.task('generate-js', generateJS );
+gulp.task('generate-js', taskGenerateJS );
 
 /**
  * Task: generate-pages
- * runs: generatePages function
+ * runs: taskGeneratePages function
  */
-gulp.task('generate-pages', generatePages );
+gulp.task('generate-pages', taskGeneratePages );
 
 /**
  * Task: generate-sass
- * runs: generateSASS function
+ * runs: taskGenerateSASS function
  */
-gulp.task('generate-sass', generateSASS );
+gulp.task('generate-sass', taskGenerateSASS );
 
 /**
  * Task: generate-resizeimg-scaled-images
- * runs: generateScaledImages function
+ * runs: taskGenerateResizeimgScaledImages function
  */
-gulp.task('generate-resizeimg-scaled-images', generateResizeimgScaledImages );
+gulp.task('generate-resizeimg-scaled-images', taskGenerateResizeimgScaledImages );
+
+/**
+ * Task: generate-nsg-sprite
+ * runs: taskGenerateNsgSprite function
+ */
+gulp.task('generate-nsg-sprite', taskGenerateNsgSprite );
 
 /**
  * Task: generate-nsg-sprites
- * runs: generateNsgSprites function
+ * runs: taskGenerateNsgSprites function
  */
-gulp.task('generate-nsg-sprites', generateNsgSprites );
-
-/**
- * Task: generate-nsg-single-sprite
- * runs: generateNsgSingleSprite function
- */
-gulp.task('generate-nsg-single-sprite', generateNsgSingleSprite );
+gulp.task('generate-nsg-sprites', taskGenerateNsgSprites );
 
 /**
  * Task: generate-svg-sprite
- * runs: generateSvgSpriteSprite function
+ * runs: taskGenerateSvgSpriteSprite function
  */
-gulp.task('generate-svgsprite-sprite', generateSvgSpriteSprite );
+gulp.task('generate-svgsprite-sprite', taskGenerateSvgSpriteSprite );
 
 /**
  * Task: generate-styleguide
- * runs: generateStyleGuide function
+ * runs: taskGenerateStyleGuide function
  */
-gulp.task('generate-styleguide', generateStyleGuide );
+gulp.task('generate-styleguide', taskGenerateStyleGuide );
 
 /**
  * Task: run-server
