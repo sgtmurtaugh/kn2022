@@ -1,0 +1,20 @@
+@use '../abstract';
+
+@each $color,
+$shade in abstract.$colors {
+
+  @each $prop,
+  $value in $shade {
+    .text-#{$color}-#{$prop} {
+      color: var(--clr-#{$color}-#{$prop}) !important;
+    }
+
+    .bg-#{$color}-#{$prop} {
+      background-color: var(--clr-#{$color}-#{$prop}) !important;
+    }
+  }
+}
+
+.primary {
+  --clr: var(--clr-primary-400);
+}

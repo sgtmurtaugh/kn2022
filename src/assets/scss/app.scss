@@ -1,7 +1,7 @@
-@forward 'base';
-@forward 'components';
-@forward 'layout';
-@forward 'pages';
-@forward 'themes';
-@forward 'utilities';
-@forward 'vendors';
+@use 'base';
+@use 'components';
+@use 'layout';
+@use 'pages';
+@use 'themes';
+@use 'utilities';
+@use 'vendors';

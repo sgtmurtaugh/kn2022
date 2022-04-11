@@ -1,6 +1,32 @@
 @use '../abstract';
 
 :root {
-  --color-black: #{abstract.$black};
-  --color-white: #{abstract.$white};
+
+  // section-spacing
+
+
+  // colors
+  @each $color, $shade in abstract.$colors {
+
+    @each $prop, $value in $shade {
+      --clr-#{$color}-#{$prop}: #{$value};
+    }
+  }
+
+  // font-sizes
+  @each $screen-size, $property in abstract.$type-scale {
+    @if $screen-size == small {
+      @each $prop, $value in $property {
+        --fs-#{$prop}: #{$value};
+      }
+    }
+    @else {
+      @include abstract.breakpoint(small) {
+        @each $prop,
+        $value in $property {
+          --fs-#{$prop}: #{$value};
+        }
+      }
+    }
+  }
 }
