@@ -1,1 +1,6 @@
-@import 'modern-css-reset';
+//@forward '~modern-css-reset/dist/reset.css';
+
+body {
+  background-color: var(--clr-primary-400);
+  background-color: lime;
+}

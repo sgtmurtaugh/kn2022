@@ -104,29 +104,29 @@ function getFolders(dir) {
 
 /**
  * Start a server with BrowserSync to preview the site in
- * @param done
+ * @param cb
  */
-function startServer(done) {
+function startServer(cb) {
     browser.init({
         server: config.paths.dist.path,
         port: config.development.server.port
     });
-    done();
+    cb();
 }
 
 /**
  * Reload the browser with BrowserSync
  */
-function reloadServer(done) {
+function reloadServer(cb) {
     browser.reload();
-    done();
+    cb();
 }
 
 /**
  * Watch for changes to static assets, pages, Sass, and JavaScript
- * @param done
+ * @param cb
  */
-function watch(done) {
+function watch(cb) {
     gulp.watch(config.paths.src.assets, taskCopyAssets);
     gulp.watch('src/pages/**/*.html').on('change', gulp.series(taskGeneratePages, browser.reload));
     gulp.watch('src/{layouts,partials}/**/{*.html,*.hbs}').on('change', gulp.series(taskResetPages, taskGeneratePages, browser.reload));
@@ -134,7 +134,7 @@ function watch(done) {
     gulp.watch('src/assets/js/**/*.js').on('change', gulp.series(taskGenerateJS, taskCopyInitJs, browser.reload));
     gulp.watch('src/assets/img/**/*').on('change', gulp.series(taskCopyImages, browser.reload));
     gulp.watch('src/styleguide/**').on('change', gulp.series(taskGenerateStyleGuide, browser.reload));
-    done();
+    cb();
 }
 
 
@@ -144,13 +144,14 @@ function watch(done) {
 
 /**
  * taskClean
- * @param done
+ * @param cb
  * Deletes dist and build folder
  * This happens every time a build starts
  */
-function taskClean(done) {
-    rimraf(config.paths.dist.path, done);
-    rimraf(config.paths.build.path, done);
+function taskClean(cb) {
+    rimraf.sync(config.paths.dist.path);
+    rimraf.sync(config.paths.build.path);
+    cb();
 }
 
 /**
@@ -227,9 +228,9 @@ function taskCopyImages(cb) {
 
 /**
  * taskGenerateResizeimgScaledImages
- * @param done
+ * @param cb
  */
-function taskGenerateResizeimgScaledImages(done) {
+function taskGenerateResizeimgScaledImages(cb) {
     let files = glob.sync(
         config.resizeimg.src,
         {
@@ -338,7 +339,7 @@ function taskGenerateResizeimgScaledImages(done) {
             }
         }
     }
-    done();
+    cb();
 }
 
 
@@ -385,12 +386,12 @@ function taskGeneratePages() {
 
 /**
  * resetPages
- * @param done
+ * @param cb
  * Load updated HTML templates and partials into Panini
  */
-function taskResetPages(done) {
+function taskResetPages(cb) {
     panini.refresh();
-    done();
+    cb();
 }
 
 
@@ -442,7 +443,7 @@ function taskGenerateNsgSprites(cb) {
  * Determines all sprite folders inside the sprite-src folder and
  * runs the generateSprite function on each of them.
  */
-function generateNsgSprite(flagSingleFileSprite, done) {
+function generateNsgSprite(flagSingleFileSprite, cb) {
     flagSingleFileSprite = typechecks.isBoolean(flagSingleFileSprite) ? flagSingleFileSprite : true;
 
     let spriteSources = glob.sync(path.join(config.nsg.sprite_src, '*'), {
@@ -503,7 +504,7 @@ function generateNsgSprite(flagSingleFileSprite, done) {
             } );
         }
     }
-    done();
+    cb();
 }
 
 /**
@@ -561,10 +562,10 @@ function executeNsg(spriteName, spriteSources) {
 
 /**
  * taskGenerateStyleGuide
- * @param done
+ * @param cb
  * Generate a style guide from the Markdown content and HTML template in styleguide
  */
-function taskGenerateStyleGuide(done) {
+function taskGenerateStyleGuide(cb) {
     let target = path.join(config.paths.dist.path, 'doc');
     ensureFolder(target);
     sherpa('src/styleguide/index.md',
@@ -572,7 +573,7 @@ function taskGenerateStyleGuide(done) {
             output: path.join(target, 'styleguide.html'),
             template: 'src/templates/styleguide/template.hbs'
         },
-        done
+        cb
     );
 }
 
