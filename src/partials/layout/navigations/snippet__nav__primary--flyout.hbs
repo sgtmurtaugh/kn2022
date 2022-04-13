@@ -1,0 +1,12 @@
+<li class="nav__item">
+    <a href="#">item{{@key}}</a>
+    <input type="radio" class="nav__btn" name="nav0" id="item{{@key}}" title="item{{@key}}">
+                            {{#if this}}
+    <ul>
+                                {{#each this}}
+{{.}}
+{{!--        {{> snippet__nav__primary--flyout items='hello' }}--}}
+                                {{/each}}
+    </ul>
+                            {{/if}}
+</li>
