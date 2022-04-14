@@ -1,0 +1,14 @@
+<nav class="nav nav__primary">
+    <ol>
+        <li class="nav__item">
+            <label for="item0">close menu</label>
+            <input checked type="radio" class="nav__btn--close" name="nav0" id="item0" title="close enu">
+        </li>
+
+
+                                {{#each nav-primary}}
+{{> snippet__nav__primary--flyout items=this }}
+                                {{/each}}
+
+    </ol>
+</nav>

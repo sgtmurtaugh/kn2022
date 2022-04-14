@@ -1,0 +1,24 @@
+<nav class="nav nav__primary--container-flyout">
+    <input checked type="radio" class="nav__btn nav__btn--close" name="nav-btn" id="item" title="close menu">
+    <label class="nav__btn-label" for="item">close menu</label>
+
+    <ul>
+        {{#> snippet_nav__primary--container-flyout__listentries entries=8 }}
+            {{#> snippet_nav__primary--container-flyout__container }}
+                <ul>
+                    {{#> snippet_nav__primary--container-flyout__listentries entries=(random 2 5) }}
+                        <ul>
+                            {{#> snippet_nav__primary--container-flyout__listentries entries=(random 2 5) }}
+                                <ul>
+                                    {{#> snippet_nav__primary--container-flyout__listentries entries=(random 2 5) }}
+                                    {{/snippet_nav__primary--container-flyout__listentries}}
+                                </ul>
+                            {{/snippet_nav__primary--container-flyout__listentries}}
+                        </ul>
+                    {{/snippet_nav__primary--container-flyout__listentries}}
+                </ul>
+            {{/snippet_nav__primary--container-flyout__container}}
+        {{/snippet_nav__primary--container-flyout__listentries}}
+    </ul>
+
+</nav>
