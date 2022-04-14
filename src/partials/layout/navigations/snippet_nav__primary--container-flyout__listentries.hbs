@@ -1,5 +1,5 @@
-                                {{#repeat entries }}
-{{#> snippet_nav__primary--container-flyout__listentry index=(append index @index) }}
+                                {{#repeat size}}
+{{#> snippet__nav__primary__listentry index=(append index @index) }}
     {{> @partial-block }}
-{{/snippet_nav__primary--container-flyout__listentry}}
+{{/snippet__nav__primary__listentry}}
                                 {{/repeat}}
