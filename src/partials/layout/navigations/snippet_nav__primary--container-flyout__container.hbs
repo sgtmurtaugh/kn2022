@@ -1,12 +1,17 @@
-<div class="nav__container">
-    <input type="radio" class="nav__btn nav__btn--close" name="nav-btn" id="item{{index}}" title="close menu">
-    <label class="nav__btn-label" for="item{{index}}">close menu</label>
+<div class="nav__flyout-container">
+{{!--
+    <!-- Close Button -->
+    <input checked type="radio" class="nav__btn nav__btn--close" name="nav-close" id="nav-close-{{index}}"
+           aria-haspopup="false" aria-expanded="false" aria-labelledby="nav-label-close">
+    <label tabindex="0" for="nav-close-{{index}}" class="nav__btn-label nav__btn-label--close">close</label>
+--}}
+    <label tabindex="0" for="nav-close" class="nav__btn-label nav__btn-label--close">close</label>
 
     <p>
-        <a href="#">
-            &Uuml;bersicht item {{index}}
-        </a>
+        <a href="#">Uebersicht Menu {{@index}}</a>
     </p>
 
-    {{> @partial-block }}
+    <div class="nav__subnavs-container">
+        {{> @partial-block }}
+    </div>
 </div>
