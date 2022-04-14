@@ -1,78 +1,48 @@
-@use '../../abstract';
+@forward 'breadcumb';
+@forward 'nav-primary';
 
-.nav__primary {
-  display     : flex;
-  align-items : center;
-  position    : relative;
-  margin      : 0;
-  padding     : 0;
+nav {
+  li {
+    list-style : none;
 
-  .nav__item {
-    .nav__btn--toggle {
-      ~ ul {
-        display : none;
-      }
-
-      &:checked {
-        ~ .nav__flyout-container {
-          --nav--container-display : block;
-
-          > ul {
-            display : block;
-          }
-        }
-
-        ~ ul {
-          display : block;
-        }
-      }
-
+    ul {
+      padding : 20px; // TODO
     }
+  }
+}
 
+.nav__btn {
+  display : none;
+  height  : 1px;
+  width   : 1px;
 
-    .nav__flyout-container {
-      --nav--container-display   : none;
-      --nav-sub-container-offset : 0;
-      --nav-sub-container-width  : 300px; //todo
-
-      display                    : var(--nav--container-display);
-      position                   : absolute;
-      left                       : 0;
-      background-color           : lime; // TODO
-      min-height                 : 50vh;
-      width                      : 100%;
-
-      .nav__btn--close {
-        &:checked {
-          --nav--container-display : none;
-        }
-      }
-
-      .nav__subnavs-container {
-
-        position : relative;
-
-
-        .nav__sub {
-          position : absolute;
-          top      : 0;
-          left     : var(--nav-sub-container-offset);
-          width    : var(--nav-sub-container-width);
-
-          &.nav__sub-1 {
-          }
-
-          &.nav__sub-2 {
-            --nav-sub-container-offset : var(--nav-sub-container-width);
-          }
-
-          &.nav__sub-3 {
-          }
-
-        }
-      }
+  &:checked {
+    & ~ .nav__btn-label {
+      --nav--btn-label : '=';
     }
+  }
+}
 
+.nav__btn-label {
+  --nav--btn-label : '+';
+
+  color            : var(--clr-transparent-900);
+  cursor           : pointer;
+  overflow         : hidden;
+  width            : 2rem; // TODO Button-Width Var verwenden
+  display          : inline-block;
+  position         : relative;
+
+  &:before {
+    content    : var(--nav--btn-label);
+    color      : hotpink; // TODO
+    position   : absolute;
+    inset      : 0;
+    text-align : center;
   }
 
+  &.nav__btn-label--close {
+    --nav--btn-label : 'X';
+  }
 }
+
