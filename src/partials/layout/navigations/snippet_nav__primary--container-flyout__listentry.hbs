@@ -1,10 +1,11 @@
 <li class="nav__item">
-    <input type="radio" class="nav__btn nav__btn--toggle" name="nav-btn" id="item{{index}}" title="close menu">
-    <label class="nav__btn-label" for="item{{index}}">toggle</label>
-
-    <a class="nav__label" href="https://www.google.de">
+    <a href="#">
         item {{index}}
     </a>
+
+    <input type="radio" class="nav__btn nav__btn--toggle" name="nav-toggle-{{btnIndex}}" id="nav-toggle-{{index}}"
+           aria-haspopup="false" aria-expanded="false" aria-labelledby="nav-label">
+    <label tabindex="0" for="nav-toggle-{{index}}" class="nav__btn-label">toggle</label>
 
     {{> @partial-block }}
 </li>
