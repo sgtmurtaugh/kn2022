@@ -9,7 +9,7 @@
   @each $color, $shade in abstract.$colors {
 
     @each $prop, $value in $shade {
-      --clr-#{$color}-#{$prop}: #{$value};
+      --clr-#{""+$color}-#{$prop}: #{$value};
     }
   }
 

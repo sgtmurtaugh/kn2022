@@ -73,6 +73,7 @@
     "caman": "^4.1.2",
     "cropperjs": "^1.5.12",
     "canvas": "^2.9.1",
-    "underscore": "^1.13.2"
+    "underscore": "^1.13.2",
+    "lorem-ipsum": "^2.0.4"
   }
 }
