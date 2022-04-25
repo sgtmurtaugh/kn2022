@@ -1,4 +1,5 @@
 @use '../abstract';
+@use 'sass:math';
 
 :root {
 
@@ -14,17 +15,26 @@
   }
 
   // font-sizes
-  @each $screen-size, $property in abstract.$type-scale {
-    @if $screen-size == small {
-      @each $prop, $value in $property {
-        --fs-#{$prop}: #{$value};
-      }
-    } @else {
-      @include abstract.breakpoint(small) {
-        @each $prop, $value in $property {
-          --fs-#{$prop}: #{$value};
-        }
-      }
-    }
+
+  @for $i from -2 through 6 {
+    $fs-key: ($i + 3) * 100;
+    $fs-val: abstract.px-to-rem(abstract.$base-font-size) * math.pow(abstract.$font-ratio, $i);
+    --fs-#{$fs-key}: #{$fs-val};
   }
+
+
+
+  //@each $screen-size, $property in abstract.$type-scale {
+  //  @if $screen-size == small {
+  //    @each $prop, $value in $property {
+  //      --fs-#{$prop}: #{$value};
+  //    }
+  //  } @else {
+  //    @include abstract.breakpoint(small) {
+  //      @each $prop, $value in $property {
+  //        --fs-#{$prop}: #{$value};
+  //      }
+  //    }
+  //  }
+  //}
 }

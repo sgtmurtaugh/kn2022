@@ -1,6 +1,3 @@
-@import '../../../../../node_modules/modern-css-reset/dist/reset';
+@use '../../abstract';
 
-body {
-  background-color: var(--clr-primary-400);
-  background-color: lime;
-}
+@import '../../../../../node_modules/modern-css-reset/dist/reset';
