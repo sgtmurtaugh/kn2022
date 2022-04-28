@@ -1,0 +1,11 @@
+@use 'sass:math';
+@use '../abstract';
+
+.container {
+  @each $breakpoint, $size in abstract.$breakpoints {
+    &-#{$breakpoint} {
+      margin-inline: auto;
+      max-width: $size;
+    }
+  }
+}

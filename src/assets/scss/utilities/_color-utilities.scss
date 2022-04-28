@@ -4,11 +4,11 @@
 
   @each $prop, $value in $shade {
     .text-#{""+$color}-#{$prop} {
-      color : var(--clr-#{""+$color}-#{$prop}) !important;
+      color : var(--color-#{""+$color}-#{$prop}) !important;
     }
 
     .bg-#{""+$color}-#{$prop} {
-      background-color : var(--clr-#{""+$color}-#{$prop}) !important;
+      background-color : var(--color-#{""+$color}-#{$prop}) !important;
     }
   }
 }

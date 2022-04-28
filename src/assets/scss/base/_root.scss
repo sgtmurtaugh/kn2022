@@ -3,38 +3,29 @@
 
 :root {
 
-  // section-spacing
+  // section-spacings
 
 
   // colors
   @each $color, $shade in abstract.$colors {
 
     @each $prop, $value in $shade {
-      --clr-#{""+$color}-#{$prop}: #{$value};
+      --color-#{""+$color}-#{$prop}: #{$value};
     }
   }
 
-  // font-sizes
 
+  // font-sizes
   @for $i from -2 through 6 {
     $fs-key: ($i + 3) * 100;
     $fs-val: abstract.px-to-rem(abstract.$base-font-size) * math.pow(abstract.$font-ratio, $i);
-    --fs-#{$fs-key}: #{$fs-val};
+    --font-size-#{$fs-key}: #{$fs-val};
   }
 
 
+  // widths:
+  @each $breakpoint, $size in abstract.$breakpoints {
+    --width-#{$breakpoint}: #{$size};
+  }
 
-  //@each $screen-size, $property in abstract.$type-scale {
-  //  @if $screen-size == small {
-  //    @each $prop, $value in $property {
-  //      --fs-#{$prop}: #{$value};
-  //    }
-  //  } @else {
-  //    @include abstract.breakpoint(small) {
-  //      @each $prop, $value in $property {
-  //        --fs-#{$prop}: #{$value};
-  //      }
-  //    }
-  //  }
-  //}
 }

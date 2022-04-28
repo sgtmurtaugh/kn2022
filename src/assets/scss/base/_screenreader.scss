@@ -1,29 +1,29 @@
-.sr-only {
-  border            : 0 !important;
-  clip              : rect(1px, 1px, 1px, 1px) !important;
-  -webkit-clip-path : inset(50%) !important;
-  clip-path         : inset(50%) !important;
-  height            : 1px !important;
-  margin            : -1px !important;
-  overflow          : hidden !important;
-  padding           : 0 !important;
-  position          : absolute !important;
-  width             : 1px !important;
-  white-space       : nowrap !important;
-}
-
-.screenreader-text {
+.sr {
   position : absolute;
-  left     : -999px;
-  width    : 1px;
-  height   : 1px;
   top      : auto;
+  left     : -999px;
+  display  : inline-block;
+  height   : 1px;
+  width    : 1px;
 
   &:focus {
-    display  : inline-block;
+    position : static;
     height   : auto;
     width    : auto;
-    position : static;
     margin   : auto;
+  }
+
+  &-only {
+    position    : absolute !important;
+    display     : inline-block;
+    height      : 1px !important;
+    width       : 1px !important;
+    clip        : rect(1px, 1px, 1px, 1px) !important;
+    clip-path   : inset(50%) !important;
+    margin      : -1px !important;
+    padding     : 0 !important;
+    border      : 0 !important;
+    overflow    : hidden !important;
+    white-space : nowrap !important;
   }
 }

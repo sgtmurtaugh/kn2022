@@ -1,0 +1,11 @@
+@use 'sass:map';
+@use '../abstract';
+
+html {
+  font-size: abstract.$base-font-size;
+}
+
+body {
+  max-width: min(100%, #{map.get(abstract.$breakpoints, xl)});
+  margin-inline: auto;
+}

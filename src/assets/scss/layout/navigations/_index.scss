@@ -27,7 +27,7 @@ nav {
 .nav__btn-label {
   --nav--btn-label : '+';
 
-  color            : var(--clr-transparent-900);
+  color            : var(--color-transparent-900);
   cursor           : pointer;
   overflow         : hidden;
   width            : 2rem; // TODO Button-Width Var verwenden
