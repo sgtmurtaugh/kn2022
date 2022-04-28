@@ -1,5 +1,6 @@
-@use '../type';
 @use 'sass:math';
+
+$base-font-size         : 20px;
 
 @function stripUnit($number) {
   @if type-of($number) == 'number' and not unitless($number) {
@@ -9,45 +10,45 @@
 }
 
 @function _addUnit($unitlessValue, $unit) {
-  $value: $unitlessValue;
-  @if unitless($unitlessValue)  {
-    $value: $unitlessValue * $unit;
+  $value : $unitlessValue;
+  @if unitless($unitlessValue) {
+    $value : $unitlessValue * $unit;
   }
   @return $value;
 }
 
 @function addUnit-em($unitlessValue) {
-  $em: _addUnit($unitlessValue, 1em);
+  $em : _addUnit($unitlessValue, 1em);
   @return $em;
 }
 
 @function addUnit-px($unitlessValue) {
-  $px: _addUnit($unitlessValue, 1px);
+  $px : _addUnit($unitlessValue, 1px);
   @return $px;
 }
 
 @function addUnit-rem($unitlessValue) {
-  $rem: _addUnit($unitlessValue, 1rem);
+  $rem : _addUnit($unitlessValue, 1rem);
   @return $rem;
 }
 
-@function _calcSizeFactor($pxSize, $contextSize : type.$base-font-size) {
-  $pxSize: stripUnit($pxSize);
-  $contextSize: stripUnit($contextSize);
+@function _calcSizeFactor($pxSize, $contextFontSize : $base-font-size) {
+  $pxSize : stripUnit($pxSize);
+  $contextSize : stripUnit($contextFontSize);
   @return math.div($pxSize, $contextSize);
 }
 
-@function px-to-em($pxSize, $contextSize : type.$base-font-size) {
-  $factor: _calcSizeFactor($pxSize, $contextSize);
+@function px-to-em($pxSize, $contextSize : $base-font-size) {
+  $factor : _calcSizeFactor($pxSize, $contextSize);
   @return addUnit-em($factor);
 }
 
-@function px-to-rem($pxSize, $contextSize : type.$base-font-size) {
-  $factor: _calcSizeFactor($pxSize, $contextSize);
+@function px-to-rem($pxSize, $rootFontSize : $base-font-size) {
+  $factor : _calcSizeFactor($pxSize, $rootFontSize);
   @return addUnit-rem($factor);
 }
 
-@function px-tp-percent($pxSize, $contextSize : type.$base-font-size) {
-  $factor: _calcSizeFactor($pxSize, $contextSize);
-  @return percentage( $factor );
+@function px-tp-percent($pxSize, $contextFontSize : $base-font-size) {
+  $factor : _calcSizeFactor($pxSize, $contextFontSize);
+  @return percentage($factor);
 }
