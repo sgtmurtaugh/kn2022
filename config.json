@@ -141,6 +141,7 @@
     "layout_": "vertical",
     "sprite_extension": ".png",
     "stylesheet": "scss",
+    "stylesheet_sprite_url": "/assets/media/images/sprites/",
     "stylesheet_target": "build/nsg/scss",
     "stylesheet_prefix": "_nsg-",
     "stylesheet_suffix": "",
