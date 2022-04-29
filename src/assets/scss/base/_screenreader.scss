@@ -2,28 +2,34 @@
   position : absolute;
   top      : auto;
   left     : -999px;
-  display  : inline-block;
   height   : 1px;
   width    : 1px;
 
   &:focus {
     position : static;
+    display  : inline-block;
     height   : auto;
     width    : auto;
     margin   : auto;
   }
+}
 
-  &-only {
-    position    : absolute !important;
-    display     : inline-block;
-    height      : 1px !important;
-    width       : 1px !important;
-    clip        : rect(1px, 1px, 1px, 1px) !important;
-    clip-path   : inset(50%) !important;
-    margin      : -1px !important;
-    padding     : 0 !important;
-    border      : 0 !important;
-    overflow    : hidden !important;
-    white-space : nowrap !important;
-  }
+.sr-only {
+  position    : absolute !important;
+  height      : 1px !important;
+  width       : 1px !important;
+  clip        : rect(1px, 1px, 1px, 1px) !important;
+  clip-path   : inset(50%) !important;
+  margin      : -1px;
+  padding     : 0 !important;
+  border      : 0 !important;
+  overflow    : hidden !important;
+  white-space : nowrap !important;
+}
+
+.sr-text {
+  display     : inline-block;
+  overflow    : hidden;
+  color       : var(--color-neutral-1);
+  white-space : nowrap;
 }
