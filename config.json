@@ -146,7 +146,8 @@
     "stylesheet_prefix": "_nsg-",
     "stylesheet_suffix": "",
     "stylesheet_extension": ".scss",
-    "compositor": "jimp"
+    "compositor": "jimp",
+    "pixelRatio": 1
   },
 
   "svgsprite": {
