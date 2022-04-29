@@ -533,7 +533,8 @@ function executeNsg(spriteName, spriteSources) {
             stylesheetPath: stylesheetPath,
             stylesheetOptions: {
                 prefix: stylesheetPrefix,
-                spritePath: stylesheetSpriteUrl
+                spritePath: stylesheetSpriteUrl,
+                pixelRatio: config.nsg.pixelRatio
             },
             compositor: config.nsg.compositor,
             layout: config.nsg.layout,
