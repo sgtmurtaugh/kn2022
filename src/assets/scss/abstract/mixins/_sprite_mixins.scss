@@ -1,0 +1,93 @@
+@use '../functions/sprite_functions';
+
+/* ------------------------------
+    ### Private Helper Mixins
+    Base Config for Background sprites
+    Weiterer Content kann an das Mixin uebergeben werden..
+   ------------------------------ */
+@mixin -sprite($sprite, $pseudo-class : 'after') {
+  position: relative;
+  display: inline-block;
+  width: sprite_functions.sprite-width($sprite);
+  height: sprite_functions.sprite-height($sprite);
+
+  //@include sprite-width($sprite);
+  //@include sprite-height($sprite);
+
+  $position-property: 'right';
+
+  @if not (($pseudo-class == 'after') or ($pseudo-class == 'before')) {
+    @debug "given pseudo-class value '#{$pseudo-class}' is ignored! use default value: 'after'";
+    $pseudo-class : 'after';
+  }
+
+  @if $pseudo-class == 'before' {
+    $position-property: 'left';
+  }
+
+  &::#{$pseudo-class} {
+    content: '';
+    position: absolute;
+    top: calc(50% - (#{sprite_functions.sprite-height($sprite)} / 2));
+
+    #{$position-property}: 0;
+    @content;
+  }
+}
+
+
+/* ------------------------------
+    ### Mixin fuer Elemente, deren after Pseudo-Element ein Hintergrundbild darstellen soll.
+    @param sprite-height: Der Parameter wird fuer die vertikale Zentrierung des Bildes verwendet.
+
+    Weiterer Content kann an das Mixin uebergeben werden. Dieser wird innerhalb des after Pseudoelements ausgegeben.
+   ------------------------------ */
+@mixin after-sprite($sprite-height) {
+  @include -sprite($sprite-height, 'after') {
+    @content;
+  }
+}
+
+/* ------------------------------
+    ### Mixin fuer Elemente, deren before Pseudo-Element ein Hintergrundbild darstellen soll.
+    @param sprite-height: Der Parameter wird fuer die vertikale Zentrierung des Bildes verwendet.
+
+    Weiterer Content kann an das Mixin uebergeben werden. Dieser wird innerhalb des before Pseudoelements ausgegeben.
+   ------------------------------ */
+@mixin before-sprite($sprite-height) {
+  @include -sprite($sprite-height, 'before') {
+    @content;
+  }
+}
+
+@mixin sprite-image($spritePath) {
+  background-image: url('#{$spritePath}');
+}
+
+@mixin sprite-size($spriteSize) {
+  background-size: #{$spriteSize};
+}
+
+@mixin sprite-position($sprite) {
+  background-position: nth($sprite, 1) nth($sprite, 2);
+}
+
+@mixin sprite-width($sprite) {
+  width: nth($sprite, 3);
+}
+
+@mixin sprite-height($sprite) {
+  height: nth($sprite, 4);
+}
+
+@mixin sprite($sprite, $spritePath, $spriteSize: null ) {
+  @include sprite-image($spritePath);
+  @include sprite-position($sprite);
+  @if $spriteSize {
+    @include sprite-size($spriteSize);
+  }
+  @include sprite-width($sprite);
+  @include sprite-height($sprite);
+
+  @content;
+}
