@@ -128,11 +128,14 @@ function reloadServer(cb) {
  */
 function watch(cb) {
     gulp.watch(config.paths.src.assets, taskCopyAssets);
-    gulp.watch('src/pages/**/*.html').on('change', gulp.series(taskGeneratePages, browser.reload));
-    gulp.watch('src/{layouts,partials}/**/{*.html,*.hbs}').on('change', gulp.series(taskResetPages, taskGeneratePages, browser.reload));
+    gulp.watch('src/pages/**/*.hbs').on('change', gulp.series(taskGeneratePages, browser.reload));
+    gulp.watch('src/layouts/**/*.hbs').on('change', gulp.series(taskResetPages, taskGeneratePages, browser.reload));
+    gulp.watch('src/partials/**/*.hbs').on('change', gulp.series(taskResetPages, taskGeneratePages, browser.reload));
+
     gulp.watch('src/assets/scss/**/*.scss', taskGenerateSASS);
     gulp.watch('src/assets/js/**/*.js').on('change', gulp.series(taskGenerateJS, taskCopyInitJs, browser.reload));
     gulp.watch('src/assets/img/**/*').on('change', gulp.series(taskCopyImages, browser.reload));
+
     gulp.watch('src/styleguide/**').on('change', gulp.series(taskGenerateStyleGuide, browser.reload));
     cb();
 }
