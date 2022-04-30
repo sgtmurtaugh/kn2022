@@ -1,73 +1,63 @@
-$-nsg-sample1-android-files-mobile-x            : -15px;
-$-nsg-sample1-android-files-mobile-y            : -15px;
-$-nsg-sample1-android-files-mobile-width        : 512px;
-$-nsg-sample1-android-files-mobile-height       : 512px;
-$-nsg-sample1-android-files-mobile              : $-nsg-sample1-android-files-mobile-x $-nsg-sample1-android-files-mobile-y $-nsg-sample1-android-files-mobile-width $-nsg-sample1-android-files-mobile-height;
-$-nsg-sample1-aplication-deb-dll-x              : -557px;
-$-nsg-sample1-aplication-deb-dll-y              : -15px;
-$-nsg-sample1-aplication-deb-dll-width          : 512px;
-$-nsg-sample1-aplication-deb-dll-height         : 512px;
-$-nsg-sample1-aplication-deb-dll                : $-nsg-sample1-aplication-deb-dll-x $-nsg-sample1-aplication-deb-dll-y $-nsg-sample1-aplication-deb-dll-width $-nsg-sample1-aplication-deb-dll-height;
-$-nsg-sample1-apple-fat32-mac-x                 : -15px;
-$-nsg-sample1-apple-fat32-mac-y                 : -557px;
-$-nsg-sample1-apple-fat32-mac-width             : 512px;
-$-nsg-sample1-apple-fat32-mac-height            : 512px;
-$-nsg-sample1-apple-fat32-mac                   : $-nsg-sample1-apple-fat32-mac-x $-nsg-sample1-apple-fat32-mac-y $-nsg-sample1-apple-fat32-mac-width $-nsg-sample1-apple-fat32-mac-height;
-$-nsg-sample1-apple-files-ios-x                 : -557px;
-$-nsg-sample1-apple-files-ios-y                 : -557px;
-$-nsg-sample1-apple-files-ios-width             : 512px;
-$-nsg-sample1-apple-files-ios-height            : 512px;
-$-nsg-sample1-apple-files-ios                   : $-nsg-sample1-apple-files-ios-x $-nsg-sample1-apple-files-ios-y $-nsg-sample1-apple-files-ios-width $-nsg-sample1-apple-files-ios-height;
-$-nsg-sample1-cdr-eps-files-x                   : -1099px;
-$-nsg-sample1-cdr-eps-files-y                   : -15px;
-$-nsg-sample1-cdr-eps-files-width               : 512px;
-$-nsg-sample1-cdr-eps-files-height              : 512px;
-$-nsg-sample1-cdr-eps-files                     : $-nsg-sample1-cdr-eps-files-x $-nsg-sample1-cdr-eps-files-y $-nsg-sample1-cdr-eps-files-width $-nsg-sample1-cdr-eps-files-height;
-$-nsg-sample1-configuration-files-help-2-x      : -1099px;
-$-nsg-sample1-configuration-files-help-2-y      : -557px;
-$-nsg-sample1-configuration-files-help-2-width  : 512px;
-$-nsg-sample1-configuration-files-help-2-height : 512px;
-$-nsg-sample1-configuration-files-help-2        : $-nsg-sample1-configuration-files-help-2-x $-nsg-sample1-configuration-files-help-2-y $-nsg-sample1-configuration-files-help-2-width $-nsg-sample1-configuration-files-help-2-height;
-$-nsg-sample1-configuration-files-help-x        : -15px;
-$-nsg-sample1-configuration-files-help-y        : -1099px;
-$-nsg-sample1-configuration-files-help-width    : 512px;
-$-nsg-sample1-configuration-files-help-height   : 512px;
-$-nsg-sample1-configuration-files-help          : $-nsg-sample1-configuration-files-help-x $-nsg-sample1-configuration-files-help-y $-nsg-sample1-configuration-files-help-width $-nsg-sample1-configuration-files-help-height;
-$-nsg-sample1-database-dbs-files-x              : -557px;
-$-nsg-sample1-database-dbs-files-y              : -1099px;
-$-nsg-sample1-database-dbs-files-width          : 512px;
-$-nsg-sample1-database-dbs-files-height         : 512px;
-$-nsg-sample1-database-dbs-files                : $-nsg-sample1-database-dbs-files-x $-nsg-sample1-database-dbs-files-y $-nsg-sample1-database-dbs-files-width $-nsg-sample1-database-dbs-files-height;
-$-nsg-sample1-files-hack-secret-x               : -1099px;
-$-nsg-sample1-files-hack-secret-y               : -1099px;
-$-nsg-sample1-files-hack-secret-width           : 512px;
-$-nsg-sample1-files-hack-secret-height          : 512px;
-$-nsg-sample1-files-hack-secret                 : $-nsg-sample1-files-hack-secret-x $-nsg-sample1-files-hack-secret-y $-nsg-sample1-files-hack-secret-width $-nsg-sample1-files-hack-secret-height;
-$-nsg-sample1-files-ntfs-operating-x            : -1641px;
-$-nsg-sample1-files-ntfs-operating-y            : -15px;
-$-nsg-sample1-files-ntfs-operating-width        : 512px;
-$-nsg-sample1-files-ntfs-operating-height       : 512px;
-$-nsg-sample1-files-ntfs-operating              : $-nsg-sample1-files-ntfs-operating-x $-nsg-sample1-files-ntfs-operating-y $-nsg-sample1-files-ntfs-operating-width $-nsg-sample1-files-ntfs-operating-height;
+@use '../../functions/sprite_functions';
+@use '../../mixins/sprite_mixins';
 
-@mixin -nsg-sample1-sprite-image {
-  background-image : url('src/assets/img/sprites/nsg-sample1.png');
-}
+$--nsg-sample1-sprite-url: '/assets/media/images/sprites/nsg-sample1.png';
+$--nsg-sample1-sprite-height: 2168px;
+$--nsg-sample1-sprite-width: 1626px;
+$--nsg-sample1-sprite-size: $--nsg-sample1-sprite-width $--nsg-sample1-sprite-height;
 
-@mixin -nsg-sample1-sprite-position($sprite) {
-  background-position : nth($sprite, 1) nth($sprite, 2);
-}
+$-nsg-sample1-android-files-mobile-x: -15px;
+$-nsg-sample1-android-files-mobile-y: -15px;
+$-nsg-sample1-android-files-mobile-width: 512px;
+$-nsg-sample1-android-files-mobile-height: 512px;
+$-nsg-sample1-android-files-mobile: $-nsg-sample1-android-files-mobile-x $-nsg-sample1-android-files-mobile-y $-nsg-sample1-android-files-mobile-width $-nsg-sample1-android-files-mobile-height;
+$-nsg-sample1-aplication-deb-dll-x: -557px;
+$-nsg-sample1-aplication-deb-dll-y: -15px;
+$-nsg-sample1-aplication-deb-dll-width: 512px;
+$-nsg-sample1-aplication-deb-dll-height: 512px;
+$-nsg-sample1-aplication-deb-dll: $-nsg-sample1-aplication-deb-dll-x $-nsg-sample1-aplication-deb-dll-y $-nsg-sample1-aplication-deb-dll-width $-nsg-sample1-aplication-deb-dll-height;
+$-nsg-sample1-apple-fat32-mac-x: -15px;
+$-nsg-sample1-apple-fat32-mac-y: -557px;
+$-nsg-sample1-apple-fat32-mac-width: 512px;
+$-nsg-sample1-apple-fat32-mac-height: 512px;
+$-nsg-sample1-apple-fat32-mac: $-nsg-sample1-apple-fat32-mac-x $-nsg-sample1-apple-fat32-mac-y $-nsg-sample1-apple-fat32-mac-width $-nsg-sample1-apple-fat32-mac-height;
+$-nsg-sample1-apple-files-ios-x: -557px;
+$-nsg-sample1-apple-files-ios-y: -557px;
+$-nsg-sample1-apple-files-ios-width: 512px;
+$-nsg-sample1-apple-files-ios-height: 512px;
+$-nsg-sample1-apple-files-ios: $-nsg-sample1-apple-files-ios-x $-nsg-sample1-apple-files-ios-y $-nsg-sample1-apple-files-ios-width $-nsg-sample1-apple-files-ios-height;
+$-nsg-sample1-cdr-eps-files-x: -1099px;
+$-nsg-sample1-cdr-eps-files-y: -15px;
+$-nsg-sample1-cdr-eps-files-width: 512px;
+$-nsg-sample1-cdr-eps-files-height: 512px;
+$-nsg-sample1-cdr-eps-files: $-nsg-sample1-cdr-eps-files-x $-nsg-sample1-cdr-eps-files-y $-nsg-sample1-cdr-eps-files-width $-nsg-sample1-cdr-eps-files-height;
+$-nsg-sample1-configuration-files-help-2-x: -1099px;
+$-nsg-sample1-configuration-files-help-2-y: -557px;
+$-nsg-sample1-configuration-files-help-2-width: 512px;
+$-nsg-sample1-configuration-files-help-2-height: 512px;
+$-nsg-sample1-configuration-files-help-2: $-nsg-sample1-configuration-files-help-2-x $-nsg-sample1-configuration-files-help-2-y $-nsg-sample1-configuration-files-help-2-width $-nsg-sample1-configuration-files-help-2-height;
+$-nsg-sample1-configuration-files-help-x: -15px;
+$-nsg-sample1-configuration-files-help-y: -1099px;
+$-nsg-sample1-configuration-files-help-width: 512px;
+$-nsg-sample1-configuration-files-help-height: 512px;
+$-nsg-sample1-configuration-files-help: $-nsg-sample1-configuration-files-help-x $-nsg-sample1-configuration-files-help-y $-nsg-sample1-configuration-files-help-width $-nsg-sample1-configuration-files-help-height;
+$-nsg-sample1-database-dbs-files-x: -557px;
+$-nsg-sample1-database-dbs-files-y: -1099px;
+$-nsg-sample1-database-dbs-files-width: 512px;
+$-nsg-sample1-database-dbs-files-height: 512px;
+$-nsg-sample1-database-dbs-files: $-nsg-sample1-database-dbs-files-x $-nsg-sample1-database-dbs-files-y $-nsg-sample1-database-dbs-files-width $-nsg-sample1-database-dbs-files-height;
+$-nsg-sample1-files-hack-secret-x: -1099px;
+$-nsg-sample1-files-hack-secret-y: -1099px;
+$-nsg-sample1-files-hack-secret-width: 512px;
+$-nsg-sample1-files-hack-secret-height: 512px;
+$-nsg-sample1-files-hack-secret: $-nsg-sample1-files-hack-secret-x $-nsg-sample1-files-hack-secret-y $-nsg-sample1-files-hack-secret-width $-nsg-sample1-files-hack-secret-height;
+$-nsg-sample1-files-ntfs-operating-x: -1641px;
+$-nsg-sample1-files-ntfs-operating-y: -15px;
+$-nsg-sample1-files-ntfs-operating-width: 512px;
+$-nsg-sample1-files-ntfs-operating-height: 512px;
+$-nsg-sample1-files-ntfs-operating: $-nsg-sample1-files-ntfs-operating-x $-nsg-sample1-files-ntfs-operating-y $-nsg-sample1-files-ntfs-operating-width $-nsg-sample1-files-ntfs-operating-height;
 
-@mixin -nsg-sample1-sprite-width($sprite) {
-  width : nth($sprite, 3);
-}
-
-@mixin -nsg-sample1-sprite-height($sprite) {
-  height : nth($sprite, 4);
-}
 
 @mixin -nsg-sample1-sprite($sprite) {
-  @include -nsg-sample1-sprite-image;
-  @include -nsg-sample1-sprite-position($sprite);
-  @include -nsg-sample1-sprite-width($sprite);
-  @include -nsg-sample1-sprite-height($sprite);
+  @include sprite_mixins.sprite($sprite, $--nsg-sample1-sprite-url);
 }

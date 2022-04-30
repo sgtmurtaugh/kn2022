@@ -1,0 +1,63 @@
+@use '../../functions/sprite_functions';
+@use '../../mixins/sprite_mixins';
+
+$--nsg-sample3-sprite-url: '/assets/media/images/sprites/nsg-sample3.png';
+$--nsg-sample3-sprite-height: 2168px;
+$--nsg-sample3-sprite-width: 1626px;
+$--nsg-sample3-sprite-size: $--nsg-sample3-sprite-width $--nsg-sample3-sprite-height;
+
+$-nsg-sample3-danger-safety-secure-x: -15px;
+$-nsg-sample3-danger-safety-secure-y: -15px;
+$-nsg-sample3-danger-safety-secure-width: 512px;
+$-nsg-sample3-danger-safety-secure-height: 512px;
+$-nsg-sample3-danger-safety-secure: $-nsg-sample3-danger-safety-secure-x $-nsg-sample3-danger-safety-secure-y $-nsg-sample3-danger-safety-secure-width $-nsg-sample3-danger-safety-secure-height;
+$-nsg-sample3-document-file-paper-x: -557px;
+$-nsg-sample3-document-file-paper-y: -15px;
+$-nsg-sample3-document-file-paper-width: 512px;
+$-nsg-sample3-document-file-paper-height: 512px;
+$-nsg-sample3-document-file-paper: $-nsg-sample3-document-file-paper-x $-nsg-sample3-document-file-paper-y $-nsg-sample3-document-file-paper-width $-nsg-sample3-document-file-paper-height;
+$-nsg-sample3-find-search-secure-x: -15px;
+$-nsg-sample3-find-search-secure-y: -557px;
+$-nsg-sample3-find-search-secure-width: 512px;
+$-nsg-sample3-find-search-secure-height: 512px;
+$-nsg-sample3-find-search-secure: $-nsg-sample3-find-search-secure-x $-nsg-sample3-find-search-secure-y $-nsg-sample3-find-search-secure-width $-nsg-sample3-find-search-secure-height;
+$-nsg-sample3-folder-lock-protection-x: -557px;
+$-nsg-sample3-folder-lock-protection-y: -557px;
+$-nsg-sample3-folder-lock-protection-width: 512px;
+$-nsg-sample3-folder-lock-protection-height: 512px;
+$-nsg-sample3-folder-lock-protection: $-nsg-sample3-folder-lock-protection-x $-nsg-sample3-folder-lock-protection-y $-nsg-sample3-folder-lock-protection-width $-nsg-sample3-folder-lock-protection-height;
+$-nsg-sample3-folder-protection-secure-x: -1099px;
+$-nsg-sample3-folder-protection-secure-y: -15px;
+$-nsg-sample3-folder-protection-secure-width: 512px;
+$-nsg-sample3-folder-protection-secure-height: 512px;
+$-nsg-sample3-folder-protection-secure: $-nsg-sample3-folder-protection-secure-x $-nsg-sample3-folder-protection-secure-y $-nsg-sample3-folder-protection-secure-width $-nsg-sample3-folder-protection-secure-height;
+$-nsg-sample3-key-lock-password-x: -1099px;
+$-nsg-sample3-key-lock-password-y: -557px;
+$-nsg-sample3-key-lock-password-width: 512px;
+$-nsg-sample3-key-lock-password-height: 512px;
+$-nsg-sample3-key-lock-password: $-nsg-sample3-key-lock-password-x $-nsg-sample3-key-lock-password-y $-nsg-sample3-key-lock-password-width $-nsg-sample3-key-lock-password-height;
+$-nsg-sample3-lock-mobile-phone-x: -15px;
+$-nsg-sample3-lock-mobile-phone-y: -1099px;
+$-nsg-sample3-lock-mobile-phone-width: 512px;
+$-nsg-sample3-lock-mobile-phone-height: 512px;
+$-nsg-sample3-lock-mobile-phone: $-nsg-sample3-lock-mobile-phone-x $-nsg-sample3-lock-mobile-phone-y $-nsg-sample3-lock-mobile-phone-width $-nsg-sample3-lock-mobile-phone-height;
+$-nsg-sample3-mobile-phone-protection-x: -557px;
+$-nsg-sample3-mobile-phone-protection-y: -1099px;
+$-nsg-sample3-mobile-phone-protection-width: 512px;
+$-nsg-sample3-mobile-phone-protection-height: 512px;
+$-nsg-sample3-mobile-phone-protection: $-nsg-sample3-mobile-phone-protection-x $-nsg-sample3-mobile-phone-protection-y $-nsg-sample3-mobile-phone-protection-width $-nsg-sample3-mobile-phone-protection-height;
+$-nsg-sample3-protection-secure-security-2-x: -1099px;
+$-nsg-sample3-protection-secure-security-2-y: -1099px;
+$-nsg-sample3-protection-secure-security-2-width: 512px;
+$-nsg-sample3-protection-secure-security-2-height: 512px;
+$-nsg-sample3-protection-secure-security-2: $-nsg-sample3-protection-secure-security-2-x $-nsg-sample3-protection-secure-security-2-y $-nsg-sample3-protection-secure-security-2-width $-nsg-sample3-protection-secure-security-2-height;
+$-nsg-sample3-protection-secure-security-x: -1641px;
+$-nsg-sample3-protection-secure-security-y: -15px;
+$-nsg-sample3-protection-secure-security-width: 512px;
+$-nsg-sample3-protection-secure-security-height: 512px;
+$-nsg-sample3-protection-secure-security: $-nsg-sample3-protection-secure-security-x $-nsg-sample3-protection-secure-security-y $-nsg-sample3-protection-secure-security-width $-nsg-sample3-protection-secure-security-height;
+
+
+@mixin -nsg-sample3-sprite($sprite) {
+  @include sprite_mixins.sprite($sprite, $--nsg-sample3-sprite-url);
+}

@@ -526,7 +526,7 @@ function executeNsg(spriteName, spriteSources) {
         let spritePath = path.join(config.nsg.sprite_target, spriteFilename);
         let stylesheetFilename =`${config.nsg.stylesheet_prefix}${spriteName}${config.nsg.stylesheet_suffix}${config.nsg.stylesheet_extension}`;
         let stylesheetPath = path.join(config.nsg.stylesheet_target, stylesheetFilename);
-        let stylesheetPrefix = `-${config.nsg.sprite_prefix}${spriteName}${config.nsg.sprite_suffix}-`;
+        let stylesheetPrefix = `${config.nsg.sprite_prefix}${spriteName}${config.nsg.sprite_suffix}-`;
         let stylesheetSpriteUrl = `${config.nsg.stylesheet_sprite_url}${spriteFilename}`;
 
         const nsgConfig = {
