@@ -29,6 +29,7 @@
     "@parcel/source-map": "^2.0.2",
     "@parcel/transformer-postcss": "^2.4.0",
     "@sgtmurtaugh/typechecks": "^0.9.0",
+    "@sgtmurtaugh/image-utils": "^0.1.0",
     "cssnano": "^5.1.5",
     "gulp": "^4.0.2",
     "gulp-load-plugins": "^2.0.7",

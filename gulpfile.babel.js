@@ -595,6 +595,7 @@ function taskGenerateSvgSpriteSprite() {
         "ignore": ['**/*.ignore/**']
     }).pipe($.svgSprite({
         dest: './',
+        log: 'verbose',
         bust: false,
         mode: {
             css: {
@@ -605,16 +606,20 @@ function taskGenerateSvgSpriteSprite() {
                 mixin: 'sprite',
                 render: {
                     css: {
-                        dest: 'css/_svg-sprite.css'
+                        dest: 'css/_svg-sprite.css',
+                        template_: path.join(config.svgsprite.templates, 'css', 'sprite.css.hbs')
                     },
                     scss: {
-                        dest: 'scss/_svg-sprite.scss'
+                        dest: 'scss/_svg-sprite.scss',
+                        template: path.join(config.svgsprite.templates, 'css', 'sprite.scss.hbs')
                     },
                     less: {
-                        dest: 'less/_svg-sprite.less'
+                        dest: 'less/_svg-sprite.less',
+                        template: path.join(config.svgsprite.templates, 'css', 'sprite.less.hbs')
                     },
                     styl: {
-                        dest: 'styl/_svg-sprite.styl'
+                        dest: 'styl/_svg-sprite.styl',
+                        template: path.join(config.svgsprite.templates, 'css', 'sprite.styl.hbs')
                     }
                 },
                 example: {
