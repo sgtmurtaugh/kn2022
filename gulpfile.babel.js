@@ -570,14 +570,23 @@ function executeNsg(spriteName, spriteSources) {
  * Generate a style guide from the Markdown content and HTML template in styleguide
  */
 function taskGenerateStyleGuide(cb) {
-    let target = path.join(config.paths.dist.path, 'doc');
-    ensureFolder(target);
-    sherpa('src/styleguide/index.md',
+//    let tmplSherpa = path.join(config.paths.src, config.paths.templates, config.paths.stylesherpa);
+    let tmplStyleSherpa = config.stylesherpa.styleguide.template;
+
+    //let srcSherpa = path.join(config.paths.src, config.paths.stylesherpa);
+    let srcStyleSherpa = config.stylesherpa.styleguide.src;
+
+    //let distStyleSherpa = path.join(config.paths.dist, config.paths.stylesherpa);
+    let distStyleSherpa = config.stylesherpa.styleguide.dist;
+    ensureFolder(distStyleSherpa);
+
+    let targetStyleSherpa = path.join(distStyleSherpa, config.stylesherpa.styleguide.targetFilename);
+    sherpa(srcStyleSherpa,
         {
-            output: path.join(target, 'styleguide.html'),
-            template: 'src/templates/styleguide/template.hbs'
+            output: targetStyleSherpa,
+            template: tmplStyleSherpa
         },
-        cb
+        done
     );
 }
 
