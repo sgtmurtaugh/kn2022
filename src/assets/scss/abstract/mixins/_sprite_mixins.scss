@@ -62,6 +62,7 @@
 
 @mixin sprite-image($spritePath) {
   background-image: url('#{$spritePath}');
+  background-repeat: no-repeat;
 }
 
 @mixin sprite-size($spriteSize) {
