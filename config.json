@@ -130,6 +130,15 @@
     }
   },
 
+  "stylesherpa": {
+    "styleguide": {
+      "src": "src/styleguide/index.md",
+      "dist": "dist/styleguide",
+      "targetFilename": "index.html",
+      "template": "src/templates/style-sherpa/styleguide.hbs"
+    }
+  },
+
   "nsg": {
     "sprite_src": "src/media/images/sprites",
     "sprite_target": "build/nsg/sprites",
