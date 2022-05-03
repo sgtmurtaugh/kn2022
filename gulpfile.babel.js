@@ -104,31 +104,31 @@ function getFolders(dir) {
 
 /**
  * Start a server with BrowserSync to preview the site in
- * @param cb
+ * @param callback
  */
-function startServer(cb) {
+function startServer(callback) {
     browser.init({
         server: config.paths.dist.path,
         port: config.development.server.port
     });
-    cb();
+    callback();
 }
 
 /**
  * Reload the browser with BrowserSync
  */
-function reloadServer(cb) {
+function reloadServer(callback) {
     browser.reload();
-    cb();
+    callback();
 }
 
 /**
  * Watch for changes to static assets, pages, Sass, and JavaScript
- * @param cb
+ * @param callback
  */
-function watch(cb) {
+function watch(callback) {
     gulp.watch(config.paths.src.assets, taskCopyAssets);
-    gulp.watch('src/pages/**/*.hbs').on('change', gulp.series(taskGeneratePages, browser.reload));
+    gulp.watch('src/pages/**/*.html').on('change', gulp.series(taskGeneratePages, browser.reload));
     gulp.watch('src/layouts/**/*.hbs').on('change', gulp.series(taskResetPages, taskGeneratePages, browser.reload));
     gulp.watch('src/partials/**/*.hbs').on('change', gulp.series(taskResetPages, taskGeneratePages, browser.reload));
 
@@ -137,7 +137,7 @@ function watch(cb) {
     gulp.watch('src/assets/img/**/*').on('change', gulp.series(taskCopyImages, browser.reload));
 
     gulp.watch('src/styleguide/**').on('change', gulp.series(taskGenerateStyleGuide, browser.reload));
-    cb();
+    callback();
 }
 
 
@@ -147,14 +147,14 @@ function watch(cb) {
 
 /**
  * taskClean
- * @param cb
+ * @param callback
  * Deletes dist and build folder
  * This happens every time a build starts
  */
-function taskClean(cb) {
+function taskClean(callback) {
     rimraf.sync(config.paths.dist.path);
     rimraf.sync(config.paths.build.path);
-    cb();
+    callback();
 }
 
 /**
@@ -201,7 +201,7 @@ function taskCopyGsbModules() {
  * Copy images to the "dist" folder.
  * In production, the images are compressed
  */
-function taskCopyImages(cb) {
+function taskCopyImages(callback) {
     return gulp.src([
         'src/assets/media/images/**'
     ]).pipe($.if(PRODUCTION, $.imagemin(
@@ -231,9 +231,9 @@ function taskCopyImages(cb) {
 
 /**
  * taskGenerateResizeimgScaledImages
- * @param cb
+ * @param callback
  */
-function taskGenerateResizeimgScaledImages(cb) {
+function taskGenerateResizeimgScaledImages(callback) {
     let files = glob.sync(
         config.resizeimg.src,
         {
@@ -342,7 +342,7 @@ function taskGenerateResizeimgScaledImages(cb) {
             }
         }
     }
-    cb();
+    callback();
 }
 
 
@@ -389,12 +389,12 @@ function taskGeneratePages() {
 
 /**
  * resetPages
- * @param cb
+ * @param callback
  * Load updated HTML templates and partials into Panini
  */
-function taskResetPages(cb) {
+function taskResetPages(callback) {
     panini.refresh();
-    cb();
+    callback();
 }
 
 
@@ -428,8 +428,8 @@ function taskGenerateSASS() {
  * Task-Function
  * TODO
  */
-function taskGenerateNsgSprite(cb) {
-    return generateNsgSprite(true, cb);
+function taskGenerateNsgSprite(callback) {
+    return generateNsgSprite(true, callback);
 }
 
 /**
@@ -437,8 +437,8 @@ function taskGenerateNsgSprite(cb) {
  * Determines all sprite folders inside the sprite-src folder and
  * runs the generateSprite function on each of them.
  */
-function taskGenerateNsgSprites(cb) {
-    return generateNsgSprite(false, cb);
+function taskGenerateNsgSprites(callback) {
+    return generateNsgSprite(false, callback);
 }
 
 /**
@@ -446,7 +446,7 @@ function taskGenerateNsgSprites(cb) {
  * Determines all sprite folders inside the sprite-src folder and
  * runs the generateSprite function on each of them.
  */
-function generateNsgSprite(flagSingleFileSprite, cb) {
+function generateNsgSprite(flagSingleFileSprite, callback) {
     flagSingleFileSprite = typechecks.isBoolean(flagSingleFileSprite) ? flagSingleFileSprite : true;
 
     let spriteSources = glob.sync(path.join(config.nsg.sprite_src, '*'), {
@@ -507,7 +507,7 @@ function generateNsgSprite(flagSingleFileSprite, cb) {
             } );
         }
     }
-    cb();
+    callback();
 }
 
 /**
@@ -566,10 +566,10 @@ function executeNsg(spriteName, spriteSources) {
 
 /**
  * taskGenerateStyleGuide
- * @param cb
+ * @param callback
  * Generate a style guide from the Markdown content and HTML template in styleguide
  */
-function taskGenerateStyleGuide(cb) {
+function taskGenerateStyleGuide(callback) {
 //    let tmplSherpa = path.join(config.paths.src, config.paths.templates, config.paths.stylesherpa);
     let tmplStyleSherpa = config.stylesherpa.styleguide.template;
 
@@ -586,7 +586,7 @@ function taskGenerateStyleGuide(cb) {
             output: targetStyleSherpa,
             template: tmplStyleSherpa
         },
-        done
+        callback
     );
 }
 
