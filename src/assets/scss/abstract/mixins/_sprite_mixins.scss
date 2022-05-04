@@ -1,36 +1,35 @@
-@use '../functions/sprite_functions';
+@use '../functions/sprite-functions';
 
 /* ------------------------------
     ### Private Helper Mixins
     Base Config for Background sprites
     Weiterer Content kann an das Mixin uebergeben werden..
    ------------------------------ */
-@mixin -sprite($sprite, $pseudo-class : 'after') {
-  position: relative;
-  display: inline-block;
-  width: sprite_functions.sprite-width($sprite);
-  height: sprite_functions.sprite-height($sprite);
+@mixin _sprite($sprite, $pseudo-class : 'after') {
+  $position-property : 'right';
 
-  //@include sprite-width($sprite);
-  //@include sprite-height($sprite);
+  position           : relative;
+  display            : inline-block;
 
-  $position-property: 'right';
+  @include sprite-width($sprite);
+  @include sprite-height($sprite);
 
   @if not (($pseudo-class == 'after') or ($pseudo-class == 'before')) {
-    @debug "given pseudo-class value '#{$pseudo-class}' is ignored! use default value: 'after'";
+    @debug 'given pseudo-class value \'#{$pseudo-class}\' is ignored! use default value: \'after\'';
     $pseudo-class : 'after';
   }
 
   @if $pseudo-class == 'before' {
-    $position-property: 'left';
+    $position-property : 'left';
   }
 
   &::#{$pseudo-class} {
-    content: '';
-    position: absolute;
-    top: calc(50% - (#{sprite_functions.sprite-height($sprite)} / 2));
-
+    content              : '';
+    position             : absolute;
+    top                  : calc(50% - (#{sprite-functions.sprite-height($sprite)} / 2));
     #{$position-property}: 0;
+
+    @include sprite($sprite);
     @content;
   }
 }
@@ -42,8 +41,8 @@
 
     Weiterer Content kann an das Mixin uebergeben werden. Dieser wird innerhalb des after Pseudoelements ausgegeben.
    ------------------------------ */
-@mixin after-sprite($sprite-height) {
-  @include -sprite($sprite-height, 'after') {
+@mixin after-sprite($sprite) {
+  @include _sprite($sprite, 'after') {
     @content;
   }
 }
@@ -54,39 +53,52 @@
 
     Weiterer Content kann an das Mixin uebergeben werden. Dieser wird innerhalb des before Pseudoelements ausgegeben.
    ------------------------------ */
-@mixin before-sprite($sprite-height) {
-  @include -sprite($sprite-height, 'before') {
+@mixin before-sprite($sprite) {
+  @include _sprite($sprite, 'before') {
     @content;
   }
 }
 
-@mixin sprite-image($spritePath) {
-  background-image: url('#{$spritePath}');
-  background-repeat: no-repeat;
-}
-
-@mixin sprite-size($spriteSize) {
-  background-size: #{$spriteSize};
+@mixin sprite-image($sprite) {
+  $_image: sprite-functions.sprite-image($sprite);
+  @if $_image {
+    background-image  : url('#{$_image}');
+    background-repeat : no-repeat;
+  }
 }
 
 @mixin sprite-position($sprite) {
-  background-position: nth($sprite, 1) nth($sprite, 2);
+  $_position: sprite-functions.sprite-position($sprite);
+  @if $_position {
+    background-position : #{$_position};
+  }
+}
+
+@mixin sprite-size($sprite) {
+  $_size: sprite-functions.sprite-size($sprite);
+  @if $_size {
+    background-size : #{$_size};
+  }
 }
 
 @mixin sprite-width($sprite) {
-  width: nth($sprite, 3);
+  $_width: sprite-functions.sprite-width($sprite);
+  @if $_width {
+    width : #{$_width};
+  }
 }
 
 @mixin sprite-height($sprite) {
-  height: nth($sprite, 4);
+  $_height: sprite-functions.sprite-height($sprite);
+  @if $_height {
+    height : #{$_height}
+  }
 }
 
-@mixin sprite($sprite, $spritePath, $spriteSize: null ) {
-  @include sprite-image($spritePath);
+@mixin sprite($sprite) {
+  @include sprite-image($sprite);
   @include sprite-position($sprite);
-  @if $spriteSize {
-    @include sprite-size($spriteSize);
-  }
+  @include sprite-size($sprite);
   @include sprite-width($sprite);
   @include sprite-height($sprite);
 
