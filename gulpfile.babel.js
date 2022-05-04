@@ -600,51 +600,168 @@ function taskGenerateStyleGuide(callback) {
  * @returns {*}
  */
 function taskGenerateSvgSpriteSprite() {
-    return gulp.src(config.svgsprite.src, {
+    const svgSpriteConfiguration = _setupSvgSpriteConfiguration();
+
+    let srcSvgSpritePath = config.svgsprite.src;
+    let targetSvgSpritePath = config.svgsprite.target;
+    let srcSvgs = path.join(srcSvgSpritePath, '**', '*.svg');
+
+    return gulp.src(srcSvgs, {
         "ignore": ['**/*.ignore/**']
-    }).pipe($.svgSprite({
-        dest: './',
-        log: 'verbose',
-        bust: false,
-        mode: {
-            css: {
-                sprite: "sprites/sprite.css.svg",
-                layout: config.svgsprite.layout,
-                prefix: ".svgsprite-%s",
-                dimensions: "-dims",
-                mixin: 'sprite',
-                render: {
-                    css: {
-                        dest: 'css/_svg-sprite.css',
-                        template_: path.join(config.svgsprite.templates, 'css', 'sprite.css.hbs')
-                    },
-                    scss: {
-                        dest: 'scss/_svg-sprite.scss',
-                        template: path.join(config.svgsprite.templates, 'css', 'sprite.scss.hbs')
-                    },
-                    less: {
-                        dest: 'less/_svg-sprite.less',
-                        template: path.join(config.svgsprite.templates, 'css', 'sprite.less.hbs')
-                    },
-                    styl: {
-                        dest: 'styl/_svg-sprite.styl',
-                        template: path.join(config.svgsprite.templates, 'css', 'sprite.styl.hbs')
-                    }
-                },
-                example: {
-                    dest: 'html/svg-sprite-example.html'
-                }
-            },
-        },
-        shape: {
-            spacing: {
-                padding: 1,
-                box: 'padding'
-            }
-        }
-    })).pipe(gulp.dest('build/svg-sprites'));
+    })
+    .pipe($.svgSprite(svgSpriteConfiguration))
+    .pipe(gulp.dest(targetSvgSpritePath));
 }
 
+/**
+ *
+ * @returns {{log: string, dest: string}}
+ * @private
+ */
+function _setupSvgSpriteConfiguration() {
+//    let tmplSvgSpritePath = path.join(config.paths.src, config.paths.templates, config.paths.svgsprite);
+    let tmplPath = config.svgsprite.templates;
+    let tmplCommonPath = config.svgsprite['common-templates'];
+
+    let spriteName = config.svgsprite['sprite-name'] || 'svg-sprite';
+    let spriteExample = config.svgsprite['sprite-example'] || '-example.html';
+    let spritePrefix = config.svgsprite['sprite-prefix'] || '';
+    let spriteSuffix = config.svgsprite['sprite-suffix'] || '';
+    let spriteRendererPrefix = config.svgsprite['sprite-renderer-prefix'] || '_';
+    let spriteRendererSuffix = config.svgsprite['sprite-renderer-suffix'] || '';
+    let spriteRendererExtension = config.svgsprite['sprite-renderer-extension'] || 'hbs';
+    let stylesheetSpriteUrl = config.svgsprite['stylesheet_sprite_url'] || '';
+
+    let modes = ['css', 'view', 'defs', 'symbol', 'stack'];
+
+    // renderer definitions
+    const renderer = ['css', 'less', 'scss', 'styl'];
+
+    let svgSpriteConfigration = {
+        dest: './', // Main output directory
+        log: 'verbose',   // {info|debug|verbose|''|false|null}
+        variables: {
+            stylesheetSpriteUrl: stylesheetSpriteUrl
+        }
+    };
+
+    // shape
+    svgSpriteConfigration['shape'] = {
+        id: { // SVG shape ID related options
+            separator: '__', // Separator for directory name traversal
+            _generator: function(name, file) {/**/}, // SVG shape ID generator callback
+            pseudo: '~', // File name separator for shape states (e.g. ':hover')
+            whitespace: '_' // Whitespace replacement for shape IDs
+        },
+        dimension: { // Dimension related options
+            maxWidth: 2000, // Max. shape width
+            maxHeight: 2000, // Max. shape height
+            precision: 2, // Floating point precision
+            attributes: false, // Width and height attributes on embedded shapes
+        },
+        spacing: { // Spacing related options
+            padding: 0, // Padding around all shapes
+            box: 'content' // Padding strategy (similar to CSS `box-sizing`) {content|icon|padding}
+        },
+        transform: ['svgo'], // List of transformations / optimizations
+        _sort: function() { /*...*/ }, // SVG shape sorting callback
+        meta: null, // Path to YAML file with meta / accessibility data
+        align: null, // Path to YAML file with extended alignment data
+        dest: '' // Output directory for optimized intermediate SVG shapes
+    };
+
+    svgSpriteConfigration['mode'] = {};
+
+    // global mode settings
+    modes.forEach( (currentMode, index, array) => {
+        const filenameBase = `${spritePrefix}${spriteName}-${currentMode}${spriteSuffix}`;
+
+        //prefix + ( config.svgsprite.name || 'svg-sprite' ) + '.css' + suffix;
+        const selectorPrefix = filenameBase.replaceAll('\.', '-');
+
+        svgSpriteConfigration['mode'][currentMode] = {
+            dest: currentMode,
+            prefix: `.${selectorPrefix}--%s`,
+            dimensions: config.svgsprite.dimensions || '--dimensions',
+            sprite: `${filenameBase}.svg`,
+            bust: false,
+            render: {},
+            example: {
+                dest: `${filenameBase}-example.html`
+            }
+        };
+
+        // add example templates, if file exists
+        let exampleTemplate = path.join( tmplPath, currentMode, spriteExample );
+        log.info("exampleTemplate: " + exampleTemplate);
+
+        if ( !fs.existsSync(exampleTemplate) ) {
+            // otherwise add common example template, if file exists
+            exampleTemplate = path.join( tmplCommonPath, spriteExample );
+            log.info("exampleTemplate: " + exampleTemplate);
+
+            if ( !fs.existsSync( exampleTemplate ) ) {
+                log.info("Es existiert kein KBS spezifisches Example Template.");
+                exampleTemplate = null;
+            }
+        }
+
+        if ( typechecks.isNotEmpty(exampleTemplate) ) {
+            svgSpriteConfigration['mode'][currentMode]['example']['template'] = exampleTemplate;
+        }
+
+
+        // specific properties
+        switch ( currentMode ) {
+            case 'css':
+            case 'view':
+                svgSpriteConfigration['mode'][currentMode]['layout'] = config.svgsprite.layout || 'horizontal'; //  {vertical|horizontal|diagonal|packed};
+                svgSpriteConfigration['mode'][currentMode]['common'] = `${selectorPrefix}`;
+                svgSpriteConfigration['mode'][currentMode]['mixin'] = `${selectorPrefix}`;
+                break;
+
+            case 'defs':
+            case 'symbol':
+                svgSpriteConfigration['mode'][currentMode]['inline'] = false;
+                break;
+
+            case 'stack':
+                break;
+        }
+
+        // renderer Ausgaben
+        renderer.forEach((currentRenderer, index, array) => {
+            let targetFile = `_${filenameBase}`;
+
+            svgSpriteConfigration['mode'][currentMode]['render'][currentRenderer] = {
+                dest: targetFile
+            };
+
+            // add renderer template, if file exists
+            let rendererFile = `${spriteRendererPrefix}${currentRenderer}${spriteRendererSuffix}.${spriteRendererExtension}`;
+            let rendererTemplate = path.join(tmplPath, currentMode, rendererFile);
+            log.info("rendererTemplate: " + rendererTemplate);
+
+            if ( !fs.existsSync(rendererTemplate) ) {
+
+                // otherwise add common renderer template, if file exists
+                rendererTemplate = path.join( tmplCommonPath, rendererFile );
+                log.info("rendererTemplate (common): " + rendererTemplate);
+
+                if ( !fs.existsSync( rendererTemplate ) ) {
+                    log.info("Es existiert kein KBS spezifisches Example Template.");
+                    rendererTemplate = null;
+                }
+            }
+
+            if ( typechecks.isNotEmpty(rendererTemplate) ) {
+                svgSpriteConfigration['mode'][currentMode]['render'][currentRenderer]['template'] = rendererTemplate;
+            }
+        });
+    });
+
+    return svgSpriteConfigration;
+}
 
 
 /* ==================================================================================================================
