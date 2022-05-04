@@ -141,7 +141,7 @@
 
   "nsg": {
     "sprite_src": "src/media/images/sprites",
-    "sprite_target": "build/nsg/sprites",
+    "sprite_target": "build/node-sprite-generator/sprites",
     "sprite_prefix": "nsg-",
     "sprite_suffix": "",
     "layout": "packed",
@@ -151,7 +151,7 @@
     "sprite_extension": ".png",
     "stylesheet": "src/templates/node-sprite-generator/scss.tpl",
     "stylesheet_sprite_url": "/assets/media/images/sprites/",
-    "stylesheet_target": "build/nsg/scss",
+    "stylesheet_target": "build/node-sprite-generator/scss",
     "stylesheet_prefix": "_nsg-",
     "stylesheet_suffix": "",
     "stylesheet_extension": ".scss",
@@ -160,10 +160,20 @@
   },
 
   "svgsprite": {
-    "src": "src/media/svg/sprites/**/*.svg",
-    "target": "build",
+    "src": "src/media/svg/sprites",
+    "target": "build/svg-sprite",
     "templates": "src/templates/svg-sprite",
-
+    "common-templates": "src/templates/svg-sprite/common",
+    "sprite-example": "sprite-example.html",
+    "sprite-name": "kn-svg-sprite",
+    "sprite-prefix": "",
+    "sprite-suffix": "",
+    "sprite-renderer-prefix": "sprite.",
+    "sprite-renderer-suffix": "",
+    "sprite-renderer-extension": "tpl.hbs",
+    "stylesheet_sprite_url": "/assets/media/svg/sprites/",
+    
+    
     "config": {
       "log": "verbose",
 
@@ -203,7 +213,7 @@
       "mode": {
         "view": {
           "dest": "./assets/scss",
-          "sprite": "../../assets/img/svg-sprites/svg-sprite.view.svg",
+          "sprite": "../../assets/img/svg-sprites/svg-sprite-view.svg",
           "dimensions": "-dims",
           "layout": "horizontal",
           "layout_": "vertical",
@@ -213,7 +223,7 @@
           "bust": false,
           "render": {
             "scss": {
-              "dest": "svg-sprites/_svg-sprite.view.scss"
+              "dest": "svg-sprites/_svg-sprite-view.scss"
             }
           },
           "example": false
