@@ -1,6 +1,6 @@
 @use 'sass:math';
 
-$base-font-size : 20px;
+$base-font-size : 20px; // 16px;
 
 @function _unit($unitlessValue, $unit) {
   $value : $unitlessValue;
@@ -32,8 +32,8 @@ $base-font-size : 20px;
     $unitlessSize: stripUnit($size);
     $unitlessBaseSize: stripUnit($baseSize);
 
-    $faktorPxToPt: 0.75292857248934;  // 1px = 0.75292857248934pt
-    $faktorPtToPx: 1.3281472327365;   // 1pt = 1.3281472327365px
+    $faktorPxToPt: 0.75;    // 1px = 0.75pt
+    $faktorPtToPx: 1.3333;  // 1pt = 1.3333px
     $faktorNewBase: math.div($unitlessSize, $unitlessBaseSize);
 
     $calcBaseToPx: $unitlessSize * $unitlessBaseSize;
@@ -41,7 +41,7 @@ $base-font-size : 20px;
 
     @if $unit == em {
       @if $targetUnit == percent {
-        @return $unitlessSize;
+        @return $unitlessSize * 100;
       }
       @else if $targetUnit == pt {
         @return $calcBaseToPt;
@@ -50,11 +50,11 @@ $base-font-size : 20px;
         @return $calcBaseToPx;
       }
       @else if $targetUnit == rem {
-        @return $faktorNewBase;
+        @return $faktorNewBase * $unitlessBaseSize;
       }
     }
     @else if $unit == percent {
-      @if $targetUnit == em {
+      @if $targetUnit == em or $targetUnit == rem {
         @return math.div($unitlessSize, 100);
       }
       @else if $targetUnit == pt {
@@ -63,44 +63,35 @@ $base-font-size : 20px;
       @else if $targetUnit == px {
         @return math.div($calcBaseToPx, 100);
       }
-      @else if $targetUnit == rem {
-        @return math.div($unitlessSize, 100);
-      }
     }
     @else if $unit == pt {
-      @if $targetUnit == em {
-        @return $faktorNewBase * $faktorPxToPt;
+      @if $targetUnit == em or $targetUnit == rem {
+        @return math.div($faktorNewBase, $faktorPxToPt);
       }
       @else if $targetUnit == percent {
-        @return $faktorNewBase * $faktorPxToPt;
+        @return math.div($faktorNewBase, $faktorPxToPt) * 100;
       }
       @else if $targetUnit == px {
         @return $unitlessSize * $faktorPtToPx;
       }
-      @else if $targetUnit == rem {
-        @return $faktorNewBase * $faktorPxToPt;
-      }
     }
     @else if $unit == px {
-      @if $targetUnit == em {
+      @if $targetUnit == em or $targetUnit == rem {
         @return $faktorNewBase;
       }
       @else if $targetUnit == percent {
-        @return $faktorNewBase;
+        @return $faktorNewBase * 100;
       }
       @else if $targetUnit == pt {
         @return $unitlessSize * $faktorPxToPt;
       }
-      @else if $targetUnit == rem {
-        @return $faktorNewBase;
-      }
     }
     @else if $unit == rem {
       @if $targetUnit == em {
-        @return $faktorNewBase;
+        @return $faktorNewBase * $unitlessBaseSize;
       }
       @else if $targetUnit == percent {
-        @return $unitlessSize;
+        @return $unitlessSize * 100;
       }
       @else if $targetUnit == pt {
         @return $calcBaseToPt;
@@ -142,7 +133,7 @@ $base-font-size : 20px;
 // --- percent functions ---
 
 @function percent($unitlessValue) {
-  @return _unit($unitlessValue, 100%);
+  @return _unit($unitlessValue, 1%);
 }
 
 @function percent-to-em($percentSize, $contextSize : $base-font-size) {
@@ -192,19 +183,19 @@ $base-font-size : 20px;
 }
 
 @function px-to-em($pxSize, $contextSize : $base-font-size) {
-  @return em(_convert($pxSize, $contextSize, em, px));
+  @return em(_convert($pxSize, $contextSize, px, em));
 }
 
 @function px-to-percent($pxSize, $contextSize : $base-font-size) {
-  @return percent(_convert($pxSize, $contextSize, em, percent));
+  @return percent(_convert($pxSize, $contextSize, px, percent));
 }
 
 @function px-to-pt($pxSize, $rootFontSize : $base-font-size) {
-  @return pt(_convert($pxSize, $rootFontSize, em, pt));
+  @return pt(_convert($pxSize, $rootFontSize, px, pt));
 }
 
 @function px-to-rem($pxSize, $rootFontSize : $base-font-size) {
-  @return rem(_convert($pxSize, $rootFontSize, em, rem));
+  @return rem(_convert($pxSize, $rootFontSize, px, rem));
 }
 
 
@@ -230,10 +221,8 @@ $base-font-size : 20px;
   @return px(_convert($remSize, $rootFontSize, rem, px));
 }
 
-@function test() {
-
-  @debug 'unit : ' + unit(18);
-  @debug '---';
+@function testConversion() {
+  @debug '--- start conversion test ---';
   @debug '18em : ' + em(18);
   @debug '18em-to-% : ' + em-to-percent(18em);
   @debug '18em-to-pt : ' + em-to-pt(18em);
@@ -263,7 +252,7 @@ $base-font-size : 20px;
   @debug '18rem-to-% : ' + rem-to-percent(18rem);
   @debug '18rem-to-pt : ' + rem-to-pt(18rem);
   @debug '18rem-to-px : ' + rem-to-px(18rem);
-  @debug '---';
+  @debug '--- end conversion test ---';
 
   @return null;
 }
