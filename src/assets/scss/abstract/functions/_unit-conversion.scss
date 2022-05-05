@@ -25,10 +25,6 @@ $base-font-size : 20px; // 16px;
 
 @function _convert($size, $baseSize : $base-font-size, $unit: 'px', $targetUnit: 'rem') {
   @if type-of($size) == 'number' {
-    @if $unit == $targetUnit {
-      @return $size;
-    }
-
     $unitlessSize: stripUnit($size);
     $unitlessBaseSize: stripUnit($baseSize);
 
@@ -39,65 +35,71 @@ $base-font-size : 20px; // 16px;
     $calcBaseToPx: $unitlessSize * $unitlessBaseSize;
     $calcBaseToPt: $calcBaseToPx * $faktorPxToPt;
 
-    @if $unit == em {
-      @if $targetUnit == percent {
+    // em / rem to ...
+    @if $unit == em or $unit == rem {
+      // em / rem
+      @if $targetUnit == em or $targetUnit == rem {
+        @return $faktorNewBase * $unitlessBaseSize;
+      }
+      // percent
+      @else if $targetUnit == percent {
         @return $unitlessSize * 100;
       }
+      // pt
       @else if $targetUnit == pt {
         @return $calcBaseToPt;
       }
+      // px
       @else if $targetUnit == px {
         @return $calcBaseToPx;
       }
-      @else if $targetUnit == rem {
-        @return $faktorNewBase * $unitlessBaseSize;
-      }
     }
+
+    // percent to ...
     @else if $unit == percent {
+      // em / rem
       @if $targetUnit == em or $targetUnit == rem {
         @return math.div($unitlessSize, 100);
       }
+      // pt
       @else if $targetUnit == pt {
         @return math.div($calcBaseToPx, 100)  * $faktorPxToPt;
       }
+      // px
       @else if $targetUnit == px {
         @return math.div($calcBaseToPx, 100);
       }
     }
+
+    // pt to ...
     @else if $unit == pt {
+      // em / rem
       @if $targetUnit == em or $targetUnit == rem {
         @return math.div($faktorNewBase, $faktorPxToPt);
       }
+      // percent
       @else if $targetUnit == percent {
         @return math.div($faktorNewBase, $faktorPxToPt) * 100;
       }
+      // px
       @else if $targetUnit == px {
         @return $unitlessSize * $faktorPtToPx;
       }
     }
+
+    // px to ...
     @else if $unit == px {
+      // em / rem
       @if $targetUnit == em or $targetUnit == rem {
         @return $faktorNewBase;
       }
+      // percent
       @else if $targetUnit == percent {
         @return $faktorNewBase * 100;
       }
+      // pt
       @else if $targetUnit == pt {
         @return $unitlessSize * $faktorPxToPt;
-      }
-    }
-    @else if $unit == rem {
-      @if $targetUnit == em {
-        @return $faktorNewBase * $unitlessBaseSize;
-      }
-      @else if $targetUnit == percent {
-        @return $unitlessSize * 100;
-      }
-      @else if $targetUnit == pt {
-        @return $calcBaseToPt;
-      }
-      @else if $targetUnit == px {
-        @return $calcBaseToPx;
       }
     }
   }
@@ -247,7 +249,7 @@ $base-font-size : 20px; // 16px;
   @debug '18px-to-pt : ' + px-to-pt(18px);
   @debug '18px-to-rem : ' + px-to-rem(18px);
   @debug '---';
-  @debug '18rem : ' + em(18);
+  @debug '18rem : ' + rem(18);
   @debug '18rem-to-em : ' + rem-to-em(18rem);
   @debug '18rem-to-% : ' + rem-to-percent(18rem);
   @debug '18rem-to-pt : ' + rem-to-pt(18rem);
