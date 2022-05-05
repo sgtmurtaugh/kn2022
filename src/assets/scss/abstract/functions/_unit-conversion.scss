@@ -229,3 +229,41 @@ $base-font-size : 20px;
 @function rem-to-px($remSize, $rootFontSize : $base-font-size) {
   @return px(_convert($remSize, $rootFontSize, rem, px));
 }
+
+@function test() {
+
+  @debug 'unit : ' + unit(18);
+  @debug '---';
+  @debug '18em : ' + em(18);
+  @debug '18em-to-% : ' + em-to-percent(18em);
+  @debug '18em-to-pt : ' + em-to-pt(18em);
+  @debug '18em-to-px : ' + em-to-px(18em);
+  @debug '18em-to-rem : ' + em-to-rem(18em);
+  @debug '---';
+  @debug '18percent : ' + percent(18);
+  @debug '18%-to-em : ' + percent-to-em(18%);
+  @debug '18%-to-pt : ' + percent-to-pt(18%);
+  @debug '18%-to-px : ' + percent-to-px(18%);
+  @debug '18%-to-rem : ' + percent-to-rem(18%);
+  @debug '---';
+  @debug '18pt : ' + pt(18);
+  @debug '18pt-to-em : ' + pt-to-em(18pt);
+  @debug '18pt-to-% : ' + pt-to-percent(18pt);
+  @debug '18pt-to-px : ' + pt-to-px(18pt);
+  @debug '18pt-to-rem : ' + pt-to-rem(18pt);
+  @debug '---';
+  @debug '18px : ' + px(18);
+  @debug '18px-to-em : ' + px-to-em(18px);
+  @debug '18px-to-% : ' + px-to-percent(18px);
+  @debug '18px-to-pt : ' + px-to-pt(18px);
+  @debug '18px-to-rem : ' + px-to-rem(18px);
+  @debug '---';
+  @debug '18rem : ' + em(18);
+  @debug '18rem-to-em : ' + rem-to-em(18rem);
+  @debug '18rem-to-% : ' + rem-to-percent(18rem);
+  @debug '18rem-to-pt : ' + rem-to-pt(18rem);
+  @debug '18rem-to-px : ' + rem-to-px(18rem);
+  @debug '---';
+
+  @return null;
+}
