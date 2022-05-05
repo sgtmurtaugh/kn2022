@@ -1,5 +1,4 @@
-@use '../../functions/sprite_functions';
-@use '../../mixins/sprite_mixins';
+@use '../../mixins/sprite-mixins';
 
 $--nsg-sample3-sprite-url: '/assets/media/images/sprites/nsg-sample3.png';
 $--nsg-sample3-sprite-height: 2168px;
@@ -59,5 +58,5 @@ $-nsg-sample3-protection-secure-security: $-nsg-sample3-protection-secure-securi
 
 
 @mixin -nsg-sample3-sprite($sprite) {
-  @include sprite_mixins.sprite($sprite, $--nsg-sample3-sprite-url);
+  @include sprite-mixins.sprite($sprite, $--nsg-sample3-sprite-url);
 }

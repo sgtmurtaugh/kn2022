@@ -1,5 +1,4 @@
-@use '../../functions/sprite_functions';
-@use '../../mixins/sprite_mixins';
+@use '../../mixins/sprite-mixins';
 
 $--nsg-sample1-sprite-url: '/assets/media/images/sprites/nsg-sample1.png';
 $--nsg-sample1-sprite-height: 2168px;
@@ -59,5 +58,5 @@ $-nsg-sample1-files-ntfs-operating: $-nsg-sample1-files-ntfs-operating-x $-nsg-s
 
 
 @mixin -nsg-sample1-sprite($sprite) {
-  @include sprite_mixins.sprite($sprite, $--nsg-sample1-sprite-url);
+  @include sprite-mixins.sprite($sprite, $--nsg-sample1-sprite-url);
 }

@@ -1,5 +1,4 @@
-@use '../../functions/sprite_functions';
-@use '../../mixins/sprite_mixins';
+@use '../../mixins/sprite-mixins';
 
 $--nsg-all-sprite-sprite-url: '/assets/media/images/sprites/nsg-all-sprite.png';
 $--nsg-all-sprite-sprite-height: 2710px;
@@ -109,5 +108,5 @@ $-nsg-all-sprite-protection-secure-security: $-nsg-all-sprite-protection-secure-
 
 
 @mixin -nsg-all-sprite-sprite($sprite) {
-  @include sprite_mixins.sprite($sprite, $--nsg-all-sprite-sprite-url);
+  @include sprite-mixins.sprite($sprite, $--nsg-all-sprite-sprite-url);
 }
