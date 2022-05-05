@@ -10,12 +10,6 @@ $base-font-size : 20px; // 16px;
   @return $value;
 }
 
-@function _calcSizeFactor($pxSize, $contextFontSize : $base-font-size) {
-  $pxSize : stripUnit($pxSize);
-  $contextSize : stripUnit($contextFontSize);
-  @return math.div($pxSize, $contextSize);
-}
-
 @function stripUnit($number) {
   @if type-of($number) == 'number' and not unitless($number) {
     @return math.div($number, ($number * 0 + 1));
