@@ -23,105 +23,94 @@ $base-font-size : 20px;
   @return $number;
 }
 
-
-
-@function _convert($size, $targetUnit: 'rem', $baseSize : $base-font-size) {
-  $unit : null;
-
+@function _convert($size, $baseSize : $base-font-size, $unit: 'px', $targetUnit: 'rem') {
   @if type-of($size) == 'number' {
-    $unit : unit($size);
-
-    @if $unit == '' {
-      $unit : 'px';
-    }
-
     @if $unit == $targetUnit {
       @return $size;
     }
 
-    // 1px = 0.75292857248934pt
-    // 1pt = 1.3281472327365px
-
     $unitlessSize: stripUnit($size);
     $unitlessBaseSize: stripUnit($baseSize);
 
-    @if $unit == 'em' {
-      @if $targetUnit == '%' or $targetUnit == 'percent' {
-        @return percentage($unitlessSize);
-      }
-      @else if $targetUnit == 'pt' {
-        @return $unitlessSize * $unitlessBaseSize * 0.75292857248934 + pt;
-      }
-      @else if $targetUnit == 'px' {
-        @return $unitlessSize * $unitlessBaseSize + px;
-      }
-      @else if $targetUnit == 'rem' {
-        @return math.div($unitlessSize, $unitlessBaseSize) + rem;
-      }
-    }
-    @else if $unit == '%' or $unit == 'percent' {
-      @if $targetUnit == 'em' {
-        @return math.div($unitlessSize, 100) + em;
-      }
-      @else if $targetUnit == 'pt' {
-        @return math.div($unitlessSize * $unitlessBaseSize, 100)  * 0.75292857248934 + rem;
-      }
-      @else if $targetUnit == 'px' {
-        @return math.div($unitlessSize * $unitlessBaseSize, 100) + px;
-      }
-      @else if $targetUnit == 'rem' {
-        @return math.div($unitlessSize, 100) + rem;
-      }
-    }
-    @else if $unit == 'pt' {
-      @if $targetUnit == 'em' {
-        @return math.div($unitlessSize, $unitlessBaseSize) * 0.75292857248934 + em;
-      }
-      @else if $targetUnit == '%' or $targetUnit == 'percent' {
-        @return percentage( math.div($unitlessSize, $unitlessBaseSize) * 0.75292857248934 );
-      }
-      @else if $targetUnit == 'px' {
-        // @return $size * 1.3333+px;
-        @return $unitlessSize * 1.3281472327365 + px;
-      }
-      @else if $targetUnit == 'rem' {
-        @return math.div($unitlessSize, $unitlessBaseSize) * 0.75292857248934 + rem;
-      }
-    }
-    @else if $unit == 'px' {
-      @if $targetUnit == 'em' {
-        @return math.div($unitlessSize, $unitlessBaseSize) + em;
-      }
-      @else if $targetUnit == '%' or $targetUnit == 'percent' {
-        @return percentage( math.div($unitlessSize, $unitlessBaseSize) );
-      }
-      @else if $targetUnit == 'pt' {
-        @return $unitlessSize * 0.75292857248934 + pt;
-      }
-      @else if $targetUnit == 'rem' {
-        @return math.div($unitlessSize, $unitlessBaseSize) + rem;
-      }
-    }
-    @else if $unit == 'rem' {
-      @if $targetUnit == 'em' {
-        @return math.div($unitlessSize, $unitlessBaseSize) + rem;
-      }
-      @else if $targetUnit == '%' or $targetUnit == 'percent' {
-        @return percentage( $unitlessSize );
-      }
-      @else if $targetUnit == 'pt' {
-        @return $unitlessSize * $unitlessBaseSize * 0.75292857248934 + pt;
-      }
-      @else if $targetUnit == 'px' {
-        @return $unitlessSize * $unitlessBaseSize + px;
-      }
-    }
+    $faktorPxToPt: 0.75292857248934;  // 1px = 0.75292857248934pt
+    $faktorPtToPx: 1.3281472327365;   // 1pt = 1.3281472327365px
+    $faktorNewBase: math.div($unitlessSize, $unitlessBaseSize);
 
-    //  $pxSize : stripUnit($pxSize);
-    //  $contextSize : stripUnit($contextFontSize);
-    //  @return math.div($pxSize, $contextSize);
+    $calcBaseToPx: $unitlessSize * $unitlessBaseSize;
+    $calcBaseToPt: $calcBaseToPx * $faktorPxToPt;
 
+    @if $unit == em {
+      @if $targetUnit == percent {
+        @return $unitlessSize;
+      }
+      @else if $targetUnit == pt {
+        @return $calcBaseToPt;
+      }
+      @else if $targetUnit == px {
+        @return $calcBaseToPx;
+      }
+      @else if $targetUnit == rem {
+        @return $faktorNewBase;
+      }
+    }
+    @else if $unit == percent {
+      @if $targetUnit == em {
+        @return math.div($unitlessSize, 100);
+      }
+      @else if $targetUnit == pt {
+        @return math.div($calcBaseToPx, 100)  * $faktorPxToPt;
+      }
+      @else if $targetUnit == px {
+        @return math.div($calcBaseToPx, 100);
+      }
+      @else if $targetUnit == rem {
+        @return math.div($unitlessSize, 100);
+      }
+    }
+    @else if $unit == pt {
+      @if $targetUnit == em {
+        @return $faktorNewBase * $faktorPxToPt;
+      }
+      @else if $targetUnit == percent {
+        @return $faktorNewBase * $faktorPxToPt;
+      }
+      @else if $targetUnit == px {
+        @return $unitlessSize * $faktorPtToPx;
+      }
+      @else if $targetUnit == rem {
+        @return $faktorNewBase * $faktorPxToPt;
+      }
+    }
+    @else if $unit == px {
+      @if $targetUnit == em {
+        @return $faktorNewBase;
+      }
+      @else if $targetUnit == percent {
+        @return $faktorNewBase;
+      }
+      @else if $targetUnit == pt {
+        @return $unitlessSize * $faktorPxToPt;
+      }
+      @else if $targetUnit == rem {
+        @return $faktorNewBase;
+      }
+    }
+    @else if $unit == rem {
+      @if $targetUnit == em {
+        @return $faktorNewBase;
+      }
+      @else if $targetUnit == percent {
+        @return $unitlessSize;
+      }
+      @else if $targetUnit == pt {
+        @return $calcBaseToPt;
+      }
+      @else if $targetUnit == px {
+        @return $calcBaseToPx;
+      }
+    }
   }
+
   @debug 'not yet implemented! #{$unit} to #{$targetUnit}';
   @return null;
 }
@@ -130,118 +119,113 @@ $base-font-size : 20px;
 // --- em functions ---
 
 @function em($unitlessValue) {
-  $em : _unit($unitlessValue, 1em);
-  @return $em;
+  @return _unit($unitlessValue, 1em);
 }
 
 @function em-to-percent($emSize, $contextSize : $base-font-size) {
-  @return _convert($emSize, '%', $contextSize);
+  @return percent(_convert($emSize, $contextSize, em, percent));
 }
 
 @function em-to-pt($emSize, $rootFontSize : $base-font-size) {
-  @return _convert($emSize, 'pt', $rootFontSize);
+  @return pt(_convert($emSize, $rootFontSize, em, pt));
 }
 
 @function em-to-px($emSize, $rootFontSize : $base-font-size) {
-  @return _convert($emSize, 'px', $rootFontSize);
+  @return px(_convert($emSize, $rootFontSize, em, px));
 }
 
 @function em-to-rem($emSize, $contextSize : $base-font-size) {
-  @return _convert($emSize, 'rem', $contextSize);
+  @return rem(_convert($emSize, $contextSize, em, rem));
 }
 
 
 // --- percent functions ---
 
 @function percent($unitlessValue) {
-  $percent : _unit($unitlessValue, 100%);
-  @return $percent;
+  @return _unit($unitlessValue, 100%);
 }
 
 @function percent-to-em($percentSize, $contextSize : $base-font-size) {
-  @return _convert($percentSize, 'em', $contextSize);
+  @return em(_convert($percentSize, $contextSize, percent, em));
 }
 
 @function percent-to-pt($percentSize, $rootFontSize : $base-font-size) {
-  @return _convert($percentSize, 'pt', $rootFontSize);
+  @return pt(_convert($percentSize, $rootFontSize, percent, pt));
 }
 
 @function percent-to-px($percentSize, $contextSize : $base-font-size) {
-  @return _convert($percentSize, 'px', $contextSize);
+  @return px(_convert($percentSize, $contextSize, percent, px));
 }
 
 @function percent-to-rem($percentSize, $rootFontSize : $base-font-size) {
-  @return _convert($percentSize, 'rem', $rootFontSize);
+  @return rem(_convert($percentSize, $rootFontSize, percent, rem));
 }
 
 
 // --- pt functions ---
 
 @function pt($unitlessValue) {
-  $pt : _unit($unitlessValue, 1pt);
-  @return $pt;
+  @return _unit($unitlessValue, 1pt);
 }
 
 @function pt-to-em($ptSize, $contextSize : $base-font-size) {
-  @return _convert($ptSize, 'em', $contextSize);
+  @return em(_convert($ptSize, $contextSize, pt, em));
 }
 
 @function pt-to-percent($ptSize, $contextSize : $base-font-size) {
-  @return _convert($ptSize, '%', $contextSize);
+  @return percent(_convert($ptSize, $contextSize, pt, percent));
 }
 
 @function pt-to-px($ptSize, $rootFontSize : $base-font-size) {
-  @return _convert($ptSize, 'px', $rootFontSize);
+  @return px(_convert($ptSize, $rootFontSize, pt, px));
 }
 
 @function pt-to-rem($ptSize, $rootFontSize : $base-font-size) {
-  @return _convert($ptSize, 'rem', $rootFontSize);
+  @return rem(_convert($ptSize, $rootFontSize, pt, rem));
 }
 
 
 // --- px functions ---
 
 @function px($unitlessValue) {
-  $px : _unit($unitlessValue, 1px);
-  @return $px;
+  @return _unit($unitlessValue, 1px);
 }
 
 @function px-to-em($pxSize, $contextSize : $base-font-size) {
-  @return _convert($pxSize, 'px', $contextSize);
+  @return em(_convert($pxSize, $contextSize, em, px));
 }
 
 @function px-to-percent($pxSize, $contextSize : $base-font-size) {
-  @return _convert($pxSize, '%', $contextSize);
+  @return percent(_convert($pxSize, $contextSize, em, percent));
 }
 
 @function px-to-pt($pxSize, $rootFontSize : $base-font-size) {
-  @return _convert($pxSize, 'pt', $rootFontSize);
+  @return pt(_convert($pxSize, $rootFontSize, em, pt));
 }
 
 @function px-to-rem($pxSize, $rootFontSize : $base-font-size) {
-  @return _convert($pxSize, 'rem', $rootFontSize);
+  @return rem(_convert($pxSize, $rootFontSize, em, rem));
 }
 
 
 // --- rem functions ---
 
 @function rem($unitlessValue) {
-  $rem : _unit($unitlessValue, 1rem);
-  @return $rem;
+  @return _unit($unitlessValue, 1rem);
 }
 
 @function rem-to-em($remSize, $contextSize : $base-font-size) {
-  @return _convert($remSize, 'em', $contextSize);
+  @return em(_convert($remSize, $contextSize, rem, em));
 }
 
 @function rem-to-percent($remSize, $contextSize : $base-font-size) {
-  @return _convert($remSize, '%', $contextSize);
+  @return percent(_convert($remSize, $contextSize, rem, percent));
 }
 
 @function rem-to-pt($remSize, $rootFontSize : $base-font-size) {
-  @return _convert($remSize, 'pt', $rootFontSize);
+  @return pt(_convert($remSize, $rootFontSize, rem, pt));
 }
 
 @function rem-to-px($remSize, $rootFontSize : $base-font-size) {
-  @return _convert($remSize, 'px', $rootFontSize);
+  @return px(_convert($remSize, $rootFontSize, rem, px));
 }
