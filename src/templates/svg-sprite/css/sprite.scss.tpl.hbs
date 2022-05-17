@@ -1,21 +1,21 @@
 @use '../../mixins/sprite-mixins';
 
-$_svg-sprite-url: '{{{stylesheetSpriteUrl}}}{{{sprite}}}';
-$_svg-sprite-height: {{spriteHeight}}px;
-$_svg-sprite-width: {{spriteWidth}}px;
-$_svg-sprite-size: $_svg-sprite-width $_svg-sprite-height;
+$_svgsprite-url: '{{{stylesheetSpriteUrl}}}{{{sprite}}}';
+$_svgsprite-height: {{spriteHeight}}px;
+$_svgsprite-width: {{spriteWidth}}px;
+$_svgsprite-size: $_svgsprite-width $_svgsprite-height;
 
 {{#shapes}}
-$_svg-sprite-{{base}}-x: {{position.absolute.x}}px;
-$_svg-sprite-{{base}}-y: {{position.absolute.y}}px;
-$svg-sprite-{{base}}-width: {{width.outer}}px;
-$svg-sprite-{{base}}-height: {{height.outer}}px;
-$svg-sprite-{{base}}: $_svg-sprite-url $_svg-sprite-{{base}}-x $_svg-sprite-{{base}}-y $svg-sprite-{{base}}-width $svg-sprite-{{base}}-height $_svg-sprite-size;
+$_svgsprite-{{base}}-x: {{position.absolute.x}}px;
+$_svgsprite-{{base}}-y: {{position.absolute.y}}px;
+$svgsprite-{{base}}-width: {{width.outer}}px;
+$svgsprite-{{base}}-height: {{height.outer}}px;
+$svgsprite-{{base}}: $_svgsprite-url $_svgsprite-{{base}}-x $_svgsprite-{{base}}-y $svgsprite-{{base}}-width $svgsprite-{{base}}-height $_svgsprite-size;
 
 {{/shapes}}
 
 @mixin {{mixinName}}($sprite) {
-{{!--    //@include sprite-mixins.sprite($sprite, $-svg-sprite-url<% if (options.pixelRatio !== 1) { %>, $-<%= spriteName %>-size<% } %>);--}}
+{{!--    //@include sprite-mixins.sprite($sprite, $-svgsprite-url<% if (options.pixelRatio !== 1) { %>, $-<%= spriteName %>-size<% } %>);--}}
     @include sprite-mixins.sprite($sprite);
 
     // Uncomment to use private mixins instead of external sprite functions/mixins
@@ -26,13 +26,13 @@ $svg-sprite-{{base}}: $_svg-sprite-url $_svg-sprite-{{base}}-x $_svg-sprite-{{ba
     // @include _{{mixinName}}-height($sprite);
 }
 @mixin _{{mixinName}}-image {
-    background-image: url("#{$_svg-sprite-url}");
+    background-image: url("#{$_svgsprite-url}");
     background-repeat: no-repeat;
 }
-// TODO: is pixelRatio available in the svg-sprite generator?
+// TODO: is pixelRatio available in the svgsprite generator?
 // <% if (options.pixelRatio !== 1) { %>
 //@mixin _{{mixinName}}-size {
-//    background-size: #{$_svg-sprite-size};
+//    background-size: #{$_svgsprite-size};
 //}<% } %>
 @mixin _{{mixinName}}-position($sprite) {
     @if $sprite and length($sprite) > 2 {
@@ -62,25 +62,25 @@ $svg-sprite-{{base}}: $_svg-sprite-url $_svg-sprite-{{base}}-x $_svg-sprite-{{ba
 {{#shapes}}
     {{#selector.shape}}{{expression}}{{^last}},
     {{/last}}{{/selector.shape}} {
-        @include sprite-mixins.sprite($svg-sprite-{{base}});
+        @include sprite-mixins.sprite($svgsprite-{{base}});
 
         // Uncomment to use private mixins instead of external sprite functions/mixins
         // @include _{{mixinName}}-image;<% if (options.pixelRatio !== 1) { %>
         // @include _{{mixinName}}-size;<% } %>
-        // @include _{{mixinName}}-position($svg-sprite-{{base}});
-        // @include _{{mixinName}}-width($svg-sprite-{{base}});
-        // @include _{{mixinName}}-height($svg-sprite-{{base}});
+        // @include _{{mixinName}}-position($svgsprite-{{base}});
+        // @include _{{mixinName}}-width($svgsprite-{{base}});
+        // @include _{{mixinName}}-height($svgsprite-{{base}});
     }
     {{#dimensions.extra}}
 
     {{#selector.dimensions}}{{expression}}{{^last}},
     {{/last}}{{/selector.dimensions}} {
-        @include sprite-mixins.sprite-width($svg-sprite-{{base}});
-        @include sprite-mixins.sprite-height($svg-sprite-{{base}});
+        @include sprite-mixins.sprite-width($svgsprite-{{base}});
+        @include sprite-mixins.sprite-height($svgsprite-{{base}});
 
         // Uncomment to use private mixins instead of external sprite functions/mixins
-        // @include _{{mixinName}}-width($svg-sprite-{{base}});
-        // @include _{{mixinName}}-height($svg-sprite-{{base}});
+        // @include _{{mixinName}}-width($svgsprite-{{base}});
+        // @include _{{mixinName}}-height($svgsprite-{{base}});
     }{{/dimensions.extra}}
 
 {{/shapes}}

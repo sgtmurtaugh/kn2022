@@ -47,6 +47,7 @@ const config = loadConfig();
 
 /**
  * Load the JSON Config
+ * @returns {*}
  */
 function loadConfig() {
     // let ymlFile = fs.readFileSync('config.yml', 'utf8');
@@ -58,7 +59,7 @@ function loadConfig() {
 
 /**
  * Creates the given directy if it not exists.
- * @param dir
+ * @param dir {string}
  */
 function ensureFolder(dir) {
     let bSuccess = false;
@@ -67,34 +68,15 @@ function ensureFolder(dir) {
             dir = path.join(__dirname, dir);
         }
 
-        if ( !(bSuccess = fs.existsSync(dir)) ) {
-            const path = mkdirp.sync( dir );
-            if ( typechecks.isNotEmpty(path) ) {
+        bSuccess = fs.existsSync(dir);
+        if ( !bSuccess ) {
+            const _path = mkdirp.sync( dir );
+            if ( typechecks.isNotEmpty(_path) ) {
                 bSuccess = true;
             }
         }
     }
     return bSuccess;
-}
-
-// /**
-//  * Determines all files of a given directory
-//  */
-// function getFiles(dir) {
-//     return fs.readdirSync(dir)
-//         .filter(function (file) {
-//             return fs.statSync(path.join(dir, file)).isFile();
-//         });
-// }
-
-/**
- * Determines all subfolders of a given directory
- */
-function getFolders(dir) {
-    return fs.readdirSync(dir)
-        .filter(function (file) {
-            return fs.statSync(path.join(dir, file)).isDirectory();
-        });
 }
 
 
@@ -104,7 +86,7 @@ function getFolders(dir) {
 
 /**
  * Start a server with BrowserSync to preview the site in
- * @param callback
+ * @param callback {Function}
  */
 function startServer(callback) {
     browser.init({
@@ -124,7 +106,7 @@ function reloadServer(callback) {
 
 /**
  * Watch for changes to static assets, pages, Sass, and JavaScript
- * @param callback
+ * @param callback {Function}
  */
 function watch(callback) {
     gulp.watch(config.paths.src.assets, taskCopyAssets);
@@ -133,7 +115,6 @@ function watch(callback) {
     gulp.watch('src/partials/**/*.hbs').on('change', gulp.series(taskResetPages, taskGeneratePages, browser.reload));
 
     gulp.watch('src/assets/scss/**/*.scss', taskGenerateSASS);
-    gulp.watch('src/assets/js/**/*.js').on('change', gulp.series(taskGenerateJS, taskCopyInitJs, browser.reload));
     gulp.watch('src/assets/img/**/*').on('change', gulp.series(taskCopyImages, browser.reload));
 
     gulp.watch('src/styleguide/**').on('change', gulp.series(taskGenerateStyleGuide, browser.reload));
@@ -147,9 +128,9 @@ function watch(callback) {
 
 /**
  * taskClean
- * @param callback
  * Deletes dist and build folder
  * This happens every time a build starts
+ * @param callback {Function}
  */
 function taskClean(callback) {
     rimraf.sync(config.paths.dist.path);
@@ -159,9 +140,9 @@ function taskClean(callback) {
 
 /**
  * taskCopyAssets
- * @returns {*}
  * Copy files out of the assets folder
  * This task skips over the "media/images", "js", and "scss" folders, which are parsed separately
+ * @returns {*}
  */
 function taskCopyAssets() {
     return gulp.src([
@@ -182,26 +163,11 @@ function taskCopyAssets() {
 }
 
 /**
- * TODO
- * @returns {*}
- */
-function taskCopyInitJs() {
-    return gulp.src("src/assets/vendors/gsb/js/init.js").pipe(gulp.dest(path.join(config.paths.dist.path, config.paths.dist.assets, 'js')));
-}
-
-/**
- * TODO
- * @returns {*}
- */
-function taskCopyGsbModules() {
-    return gulp.src("src/assets/vendors/gsb/js/gsb/**/*.js").pipe(gulp.dest(path.join(config.paths.dist.path, config.paths.dist.assets, '/js/gsb')));
-}
-
-/**
  * Copy images to the "dist" folder.
  * In production, the images are compressed
+ * @returns {*}
  */
-function taskCopyImages(callback) {
+function taskCopyImages() {
     return gulp.src([
         'src/assets/media/images/**'
     ]).pipe($.if(PRODUCTION, $.imagemin(
@@ -231,7 +197,7 @@ function taskCopyImages(callback) {
 
 /**
  * taskGenerateResizeimgScaledImages
- * @param callback
+ * @param callback {Function}
  */
 function taskGenerateResizeimgScaledImages(callback) {
     let files = glob.sync(
@@ -353,6 +319,7 @@ function taskGenerateResizeimgScaledImages(callback) {
 /**
  * Combine JavaScript into one file
  * In production, the file is minified
+ * @returns {*}
  */
 function taskGenerateJS() {
     return gulp.src(config.paths.src.javascript)
@@ -389,8 +356,8 @@ function taskGeneratePages() {
 
 /**
  * resetPages
- * @param callback
  * Load updated HTML templates and partials into Panini
+ * @param callback {Function}
  */
 function taskResetPages(callback) {
     panini.refresh();
@@ -426,7 +393,10 @@ function taskGenerateSASS() {
 
 /**
  * Task-Function
- * TODO
+ * Delegates to the #generateNsgSprites methods. The callback is passed through and the flagSingleFileSprite
+ * is set to true, to generate only a single sprite-set.
+ *
+ * @param callback {Function}
  */
 function taskGenerateNsgSprite(callback) {
     return generateNsgSprite(true, callback);
@@ -434,14 +404,20 @@ function taskGenerateNsgSprite(callback) {
 
 /**
  * Task-Function
- * Determines all sprite folders inside the sprite-src folder and
- * runs the generateSprite function on each of them.
+ * Delegates to the #generateNsgSprites methods. The callback is passed through and the flagSingleFileSprite
+ * is set to false, to create multiple sprites-sets.
+ *
+ * @param callback {Function}
  */
 function taskGenerateNsgSprites(callback) {
     return generateNsgSprite(false, callback);
 }
 
 /**
+ *
+ * @param flagSingleFileSprite {boolean}
+ * @param callback {Function}
+ *
  * TODO
  * Determines all sprite folders inside the sprite-src folder and
  * runs the generateSprite function on each of them.
@@ -455,7 +431,7 @@ function generateNsgSprite(flagSingleFileSprite, callback) {
     })
     .filter(function (spriteSource) {
         if (fs.statSync(spriteSource).isFile()) {
-            log.warn(`no parent sprite-folder definied. file '${spriteSource}' will be ignored! move image to a new/existing parent and restart the generate task.`);
+            log.warn(`no parent sprite-folder defined. file '${spriteSource}' will be ignored! move image to a new/existing parent and restart the generate task.`);
             return false;
         }
 
@@ -466,7 +442,7 @@ function generateNsgSprite(flagSingleFileSprite, callback) {
     });
 
 
-    const SPRITENAME_ALL_SPRITE = 'all-sprite';
+    const SPRITE_NAME_ALL_SPRITE = config.nsg.sprite_name || 'all-sprite';
     let spriteNames = [];
     let spriteImages = {};
 
@@ -482,7 +458,7 @@ function generateNsgSprite(flagSingleFileSprite, callback) {
             }
         }
         else {
-            spriteSourceFolderName = SPRITENAME_ALL_SPRITE;
+            spriteSourceFolderName = SPRITE_NAME_ALL_SPRITE;
         }
 
         // add current spriteSourceFolderName to spriteNames
@@ -502,8 +478,8 @@ function generateNsgSprite(flagSingleFileSprite, callback) {
             return executeNsg( spriteNames[0], spriteImages[spriteNames[0]] );
         }
         else {
-            spriteSources.forEach( async function ( spriteSource, index ) {
-                return await executeNsg( spriteNames[index], spriteImages[spriteNames[index]] );
+            spriteNames.forEach( async function ( spriteName ) {
+                return executeNsg( spriteName, spriteImages[spriteName] );
             } );
         }
     }
@@ -514,8 +490,8 @@ function generateNsgSprite(flagSingleFileSprite, callback) {
  * Creates and runs the Node-Sprite-Generator on the given folder.
  * Only PNG files will be used for the sprite. The output is a sprite PNG and a
  * SASS source file with all containing image informations.
- * @param spriteName
- * @param spriteSources
+ * @param spriteName {string}
+ * @param spriteSources {string}
  * @returns {*}
  */
 function executeNsg(spriteName, spriteSources) {
@@ -532,7 +508,7 @@ function executeNsg(spriteName, spriteSources) {
         const nsgConfig = {
             spritePath: spritePath,
             src: spriteSources,
-            stylesheet: config.nsg.stylesheet,
+            stylesheet: config.nsg.stylesheet_template,
             stylesheetPath: stylesheetPath,
             stylesheetOptions: {
                 prefix: stylesheetPrefix,
@@ -557,6 +533,123 @@ function executeNsg(spriteName, spriteSources) {
             }
         });
     });
+}
+
+
+/* ------------------------------
+ *  ## SVG-Sprite
+ * ------------------------------ */
+
+/**
+ * Task-Function
+ * Delegates to the #generateSvgSpriteSprites methods. The callback is passed through and the flagSingleFileSprite
+ * is set to true, to generate only a single sprite-set.
+ *
+ * @param callback {Function}
+ */
+function taskGenerateSvgSpriteSprite(callback) {
+    return generateSvgSpriteSprites(true, callback);
+}
+
+/**
+ * Task-Function
+ * Delegates to the #generateSvgSpriteSprites methods. The callback is passed through and the flagSingleFileSprite
+ * is set to false, to create multiple sprites-sets.
+ *
+ * @param callback {Function}
+ */
+function taskGenerateSvgSpriteSprites(callback) {
+    return generateSvgSpriteSprites(false, callback);
+}
+
+/**
+ * TODO
+ * Determines all sprite folders inside the sprite-src folder and
+ * runs the generateSprite function on each of them.
+ *
+ * @param flagSingleFileSprite {boolean}
+ * @param callback {Function}
+ */
+function generateSvgSpriteSprites(flagSingleFileSprite, callback) {
+    flagSingleFileSprite = typechecks.isBoolean(flagSingleFileSprite) ? flagSingleFileSprite : true;
+
+    let spriteSources = glob.sync(path.join(config.svgsprite.sprite_src, '*'), {
+        "ignore": ['**/*.ignore/**']
+    })
+    .filter(function (spriteSource) {
+        if (fs.statSync(spriteSource).isFile()) {
+            log.warn(`no parent sprite-folder defined. file '${spriteSource}' will be ignored! move image to a new/existing parent and restart the generate task.`);
+            return false;
+        }
+
+        // remain only folder with svgs
+        let globSvgs = glob.sync( path.join(spriteSource, '**/*.svg' ));
+        return (globSvgs.length >= 1);
+
+    });
+
+
+    const SPRITE_NAME_ALL_SPRITE = config.svgsprite.sprite_name || 'all-sprite';
+    let spriteNames = [];
+    let spriteImages = {};
+
+
+    // determine individual sprite name and imageSources for determined sprite sources
+    spriteSources.forEach( function(spriteSource, index) {
+        let spriteSourceFolderName;
+        if (!flagSingleFileSprite) {
+            spriteSourceFolderName = spriteSource;
+            let lastFolderIndex = spriteSource.lastIndexOf('/') + 1;
+            if ( spriteSourceFolderName.length > lastFolderIndex ) {
+                spriteSourceFolderName = spriteSource.substring(lastFolderIndex);
+            }
+        }
+        else {
+            spriteSourceFolderName = SPRITE_NAME_ALL_SPRITE;
+        }
+
+        // add current spriteSourceFolderName to spriteNames
+        spriteNames.push(spriteSourceFolderName);
+
+        if ( typechecks.isUndefined(spriteImages[spriteSourceFolderName])) {
+            spriteImages[spriteSourceFolderName] = [];
+        }
+
+        // add specific sprite sources
+        spriteImages[spriteSourceFolderName].push( path.join( spriteSource, '**/*.svg' ) );
+    });
+
+    // start nsg execution with flag depended sprite sources
+    if ( typechecks.isNotEmpty(spriteImages) ) {
+        if ( flagSingleFileSprite ) {
+            return executeSvgSprite( spriteNames[0], spriteImages[spriteNames[0]] );
+        }
+        else {
+            spriteNames.forEach( async function ( spriteName ) {
+                return executeSvgSprite( spriteName, spriteImages[spriteNames] );
+            } );
+        }
+    }
+    callback();
+}
+
+/**
+ * Creates and runs the svgsprite-Generator on the given folder.
+ * Only PNG files will be used for the sprite. The output is a sprite PNG and a
+ * SASS source file with all containing image informations.
+ *
+ * @param spriteName {string}
+ * @param spriteSources {string}
+ * @returns {*}
+ */
+function executeSvgSprite(spriteName, spriteSources) {
+    const svgSpriteConfiguration = _setupSvgSpriteConfiguration(spriteName);
+
+    return gulp.src(spriteSources, {
+        "ignore": ['**/*.ignore/**']
+    })
+    .pipe($.svgSprite(svgSpriteConfiguration))
+    .pipe(gulp.dest( config.svgsprite.sprite_target ));
 }
 
 
@@ -596,41 +689,22 @@ function taskGenerateStyleGuide(callback) {
  * ------------------------------ */
 
 /**
- * taskGenerateSvgSpriteSprite
- * @returns {*}
- */
-function taskGenerateSvgSpriteSprite() {
-    const svgSpriteConfiguration = _setupSvgSpriteConfiguration();
-
-    let srcSvgSpritePath = config.svgsprite.src;
-    let targetSvgSpritePath = config.svgsprite.target;
-    let srcSvgs = path.join(srcSvgSpritePath, '**', '*.svg');
-
-    return gulp.src(srcSvgs, {
-        "ignore": ['**/*.ignore/**']
-    })
-    .pipe($.svgSprite(svgSpriteConfiguration))
-    .pipe(gulp.dest(targetSvgSpritePath));
-}
-
-/**
  *
  * @returns {{log: string, dest: string}}
  * @private
  */
-function _setupSvgSpriteConfiguration() {
+function _setupSvgSpriteConfiguration(spriteName) {
 //    let tmplSvgSpritePath = path.join(config.paths.src, config.paths.templates, config.paths.svgsprite);
     let tmplPath = config.svgsprite.templates;
-    let tmplCommonPath = config.svgsprite['common-templates'];
+    let tmplCommonPath = config.svgsprite.common_templates;
 
-    let spriteName = config.svgsprite['sprite-name'] || 'svg-sprite';
-    let spriteExample = config.svgsprite['sprite-example'] || '-example.html';
-    let spritePrefix = config.svgsprite['sprite-prefix'] || '';
-    let spriteSuffix = config.svgsprite['sprite-suffix'] || '';
-    let spriteRendererPrefix = config.svgsprite['sprite-renderer-prefix'] || '_';
-    let spriteRendererSuffix = config.svgsprite['sprite-renderer-suffix'] || '';
-    let spriteRendererExtension = config.svgsprite['sprite-renderer-extension'] || 'hbs';
-    let stylesheetSpriteUrl = config.svgsprite['stylesheet_sprite_url'] || '';
+    let spriteExample = config.svgsprite.sprite_example || '-example.html';
+    let spritePrefix = config.svgsprite.sprite_prefix || '';
+    let spriteSuffix = config.svgsprite.sprite_suffix || '';
+    let spriteRendererPrefix = config.svgsprite.sprite_renderer_prefix || '_';
+    let spriteRendererSuffix = config.svgsprite.sprite_renderer_suffix || '';
+    let spriteRendererExtension = config.svgsprite.sprite_renderer_extension || 'hbs';
+    let stylesheetSpriteUrl = config.svgsprite.stylesheet_sprite_url || '';
 
     let modes = ['css', 'view', 'defs', 'symbol', 'stack'];
 
@@ -673,7 +747,7 @@ function _setupSvgSpriteConfiguration() {
     svgSpriteConfigration['mode'] = {};
 
     // global mode settings
-    modes.forEach( (currentMode, index, array) => {
+    modes.forEach( (currentMode) => {
         const filenameBase = `${spritePrefix}${spriteName}-${currentMode}${spriteSuffix}`;
 
         //prefix + ( config.svgsprite.name || 'svg-sprite' ) + '.css' + suffix;
@@ -730,7 +804,7 @@ function _setupSvgSpriteConfiguration() {
         }
 
         // renderer Ausgaben
-        renderer.forEach((currentRenderer, index, array) => {
+        renderer.forEach( (currentRenderer) => {
             let targetFile = `_${filenameBase}`;
 
             svgSpriteConfigration['mode'][currentMode]['render'][currentRenderer] = {
@@ -787,18 +861,6 @@ gulp.task('copy-assets', taskCopyAssets );
 gulp.task('copy-images', taskCopyImages );
 
 /**
- * Task: copy-init-js
- * runs: taskCopyInitJs function
- */
-gulp.task('copy-init-js', taskCopyInitJs );
-
-/**
- * Task: copy-gsb-modules
- * runs: taskCopyGsbModules function
- */
-gulp.task('copy-gsb-modules', taskCopyGsbModules );
-
-/**
  * Task: generate-js
  * runs: taskGenerateJS function
  */
@@ -841,6 +903,12 @@ gulp.task('generate-nsg-sprites', taskGenerateNsgSprites );
 gulp.task('generate-svgsprite-sprite', taskGenerateSvgSpriteSprite );
 
 /**
+ * Task: generate-svg-sprites
+ * runs: taskGenerateSvgSpriteSprites function
+ */
+gulp.task('generate-svgsprite-sprites', taskGenerateSvgSpriteSprites );
+
+/**
  * Task: generate-styleguide
  * runs: taskGenerateStyleGuide function
  */
@@ -868,8 +936,6 @@ gulp.task('built',
         gulp.parallel(
             'generate-js',
             'copy-assets',
-            'copy-init-js',
-            'copy-gsb-modules',
             'generate-sass',
             'copy-images',
             'generate-pages'
